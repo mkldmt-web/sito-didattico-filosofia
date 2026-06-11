@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Versione audiovisiva | Quando l’arte era una soglia</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .reader-layout {
+      max-width: 980px;
+    }
+
+    .reader-panel {
+      margin: 2rem 0;
+      padding: 2rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .reader-screen {
+      margin: 1.5rem 0;
+      overflow: hidden;
+      background: #1f1b18;
+      border-radius: 22px;
+    }
+
+    .reader-screen img {
+      display: block;
+      width: 100%;
+      max-height: 560px;
+      object-fit: contain;
+      background: #1f1b18;
+    }
+
+    .reader-caption {
+      margin: 0;
+      padding: 1rem 1.25rem;
+      color: #f8f0e6;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      background: rgba(31, 27, 24, 0.96);
+    }
+
+    .reader-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .reader-controls button,
+    .reader-controls select {
+      padding: 0.8rem 1rem;
+      color: var(--color-primary);
+      background: #fffdf8;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .reader-controls button:hover,
+    .reader-controls button:focus-visible {
+      color: #fffaf2;
+      background: var(--color-primary);
+    }
+
+    .reader-status {
+      margin-bottom: 1rem;
+      color: var(--color-primary);
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+    }
+
+    .reader-text {
+      padding: 1.25rem;
+      color: var(--color-muted);
+      background: #fffdf8;
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+    }
+
+    .reader-text h2 {
+      margin: 0 0 0.75rem;
+      color: var(--color-primary);
+    }
+
+    .reader-text p {
+      margin: 0;
+    }
+
+    .reader-list {
+      margin: 1rem 0 0;
+      padding-left: 1.25rem;
+      color: var(--color-muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html#inizio">Filosofia per Licei Artistici</a>
+      <ul class="nav-menu">
+        <li><a href="index.html#articoli">Articoli</a></li>
+        <li><a href="quando-l-arte-era-una-soglia.html">Testo articolo</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="reader-layout">
+    <section class="article-hero">
+      <p class="eyebrow">Versione audiovisiva automatica</p>
+      <h1>Quando l’arte era una soglia</h1>
+      <p class="article-subtitle">Lettura con voce del browser e immagini reali già presenti nell’articolo.</p>
+    </section>
+
+    <section class="reader-panel" aria-labelledby="reader-title">
+      <h2 id="reader-title">Lettore audiovisivo</h2>
+      <p>
+        Questa pagina costruisce automaticamente una lettura audiovisiva dall’articolo pubblicato:
+        usa solo il testo narrativo principale e le immagini già inserite nella pagina, escludendo laboratori,
+        schede di metodo, bibliografia, sitografia e note redazionali.
+      </p>
+
+      <div class="reader-controls" aria-label="Comandi del lettore">
+        <button type="button" id="playBtn">Avvia</button>
+        <button type="button" id="pauseBtn">Pausa</button>
+        <button type="button" id="stopBtn">Stop</button>
+        <button type="button" id="prevBtn">Sezione precedente</button>
+        <button type="button" id="nextBtn">Sezione successiva</button>
+        <select id="rateSelect" aria-label="Velocità di lettura">
+          <option value="0.82">Lenta</option>
+          <option value="0.92" selected>Didattica</option>
+          <option value="1">Normale</option>
+        </select>
+      </div>
+
+      <p class="reader-status" id="readerStatus">Caricamento dell’articolo…</p>
+
+      <div class="reader-screen" aria-live="polite">
+        <img id="readerImage" alt="Immagine collegata alla sezione in lettura">
+        <p class="reader-caption" id="readerCaption">Le immagini appariranno qui durante la lettura.</p>
+      </div>
+
+      <div class="reader-text" id="readerText">
+        <h2>Preparazione</h2>
+        <p>Sto leggendo la pagina articolo e costruendo la sequenza audiovisiva.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="section-label">Indice audiovisivo</p>
+      <h2>Sezioni rilevate</h2>
+      <ol class="reader-list" id="sectionList"></ol>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Filosofia per Licei Artistici. Progetto didattico aperto.</p>
+  </footer>
+
+  <script>
+    const articleUrl = 'quando-l-arte-era-una-soglia.html';
+    const excludedH2 = ['laboratori', 'bibliografia', 'sitografia'];
+    const stopH2 = ['laboratori della soglia', 'bibliografia ragionata', 'sitografia e materiali visivi'];
+    const state = {
+      sections: [],
+      sectionIndex: 0,
+      paragraphIndex: 0,
+      speaking: false,
+      paused: false,
+      currentUtterance: null,
+      fallbackImages: []
+    };
+
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const rateSelect = document.getElementById('rateSelect');
+    const readerStatus = document.getElementById('readerStatus');
+    const readerImage = document.getElementById('readerImage');
+    const readerCaption = document.getElementById('readerCaption');
+    const readerText = document.getElementById('readerText');
+    const sectionList = document.getElementById('sectionList');
+
+    function cleanText(text) {
+      return text.replace(/\s+/g, ' ').trim();
+    }
+
+    function isExcludedHeading(title) {
+      const normalized = title.toLowerCase();
+      return excludedH2.some(item => normalized.includes(item)) || stopH2.some(item => normalized.includes(item));
+    }
+
+    function collectImages(node) {
+      return Array.from(node.querySelectorAll('figure')).map(figure => {
+        const img = figure.querySelector('img');
+        const caption = figure.querySelector('figcaption');
+        if (!img || !img.src) return null;
+        return {
+          src: img.src,
+          alt: img.alt || 'Immagine dell’articolo',
+          caption: caption ? cleanText(caption.textContent) : (img.alt || 'Immagine dell’articolo')
+        };
+      }).filter(Boolean);
+    }
+
+    function buildSectionsFromArticle(doc) {
+      const content = doc.querySelector('.article-content');
+      if (!content) throw new Error('Contenuto articolo non trovato.');
+
+      const sections = [];
+      let current = null;
+      let skipSubsection = false;
+
+      for (const node of Array.from(content.children)) {
+        if (node.tagName === 'H2') {
+          const title = cleanText(node.textContent);
+          if (isExcludedHeading(title)) break;
+          current = { title, paragraphs: [], images: [] };
+          sections.push(current);
+          skipSubsection = false;
+          continue;
+        }
+
+        if (!current) continue;
+        if (node.tagName === 'HR') continue;
+
+        if (node.tagName === 'H3') {
+          skipSubsection = true;
+          continue;
+        }
+
+        if (skipSubsection) continue;
+
+        if (node.classList.contains('article-figure') || node.querySelector('figure')) {
+          const images = collectImages(node);
+          current.images.push(...images);
+          state.fallbackImages.push(...images);
+          continue;
+        }
+
+        if (['P', 'BLOCKQUOTE'].includes(node.tagName)) {
+          const text = cleanText(node.textContent);
+          if (text) current.paragraphs.push(text);
+          continue;
+        }
+
+        if (['OL', 'UL'].includes(node.tagName)) {
+          const text = Array.from(node.querySelectorAll('li')).map(li => cleanText(li.textContent)).filter(Boolean).join('. ');
+          if (text) current.paragraphs.push(text);
+        }
+      }
+
+      return sections.filter(section => section.paragraphs.length > 0);
+    }
+
+    function updateSectionList() {
+      sectionList.innerHTML = '';
+      state.sections.forEach((section, index) => {
+        const li = document.createElement('li');
+        const minutes = Math.max(1, Math.round(section.paragraphs.join(' ').split(/\s+/).length / 125));
+        li.textContent = `${section.title} — circa ${minutes} min`;
+        if (index === state.sectionIndex) li.style.fontWeight = '700';
+        sectionList.appendChild(li);
+      });
+    }
+
+    function currentImage() {
+      const section = state.sections[state.sectionIndex];
+      const images = section.images.length ? section.images : state.fallbackImages;
+      if (!images.length) return null;
+      return images[state.paragraphIndex % images.length];
+    }
+
+    function renderCurrent() {
+      const section = state.sections[state.sectionIndex];
+      if (!section) return;
+      const paragraph = section.paragraphs[state.paragraphIndex] || '';
+      const image = currentImage();
+
+      readerStatus.textContent = `Sezione ${state.sectionIndex + 1}/${state.sections.length} — passaggio ${state.paragraphIndex + 1}/${section.paragraphs.length}`;
+      readerText.innerHTML = `<h2>${section.title}</h2><p>${paragraph}</p>`;
+
+      if (image) {
+        readerImage.src = image.src;
+        readerImage.alt = image.alt;
+        readerCaption.textContent = image.caption;
+      }
+
+      updateSectionList();
+    }
+
+    function chooseItalianVoice() {
+      const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+      return voices.find(voice => voice.lang && voice.lang.toLowerCase().startsWith('it')) || null;
+    }
+
+    function speakCurrentParagraph() {
+      if (!('speechSynthesis' in window)) {
+        readerStatus.textContent = 'La sintesi vocale non è disponibile in questo browser.';
+        return;
+      }
+
+      const section = state.sections[state.sectionIndex];
+      if (!section) return;
+      const text = section.paragraphs[state.paragraphIndex];
+      if (!text) return;
+
+      renderCurrent();
+      speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'it-IT';
+      utterance.rate = Number(rateSelect.value);
+      utterance.pitch = 0.95;
+      const voice = chooseItalianVoice();
+      if (voice) utterance.voice = voice;
+
+      utterance.onend = () => {
+        if (!state.speaking) return;
+        advanceParagraph();
+      };
+
+      utterance.onerror = () => {
+        state.speaking = false;
+        readerStatus.textContent = 'Lettura interrotta dal browser.';
+      };
+
+      state.currentUtterance = utterance;
+      speechSynthesis.speak(utterance);
+    }
+
+    function advanceParagraph() {
+      const section = state.sections[state.sectionIndex];
+      if (!section) return;
+
+      if (state.paragraphIndex < section.paragraphs.length - 1) {
+        state.paragraphIndex += 1;
+      } else if (state.sectionIndex < state.sections.length - 1) {
+        state.sectionIndex += 1;
+        state.paragraphIndex = 0;
+      } else {
+        state.speaking = false;
+        readerStatus.textContent = 'Lettura completata.';
+        return;
+      }
+
+      speakCurrentParagraph();
+    }
+
+    function startReading() {
+      if (!state.sections.length) return;
+      if (state.paused) {
+        speechSynthesis.resume();
+        state.paused = false;
+        state.speaking = true;
+        return;
+      }
+      state.speaking = true;
+      speakCurrentParagraph();
+    }
+
+    function pauseReading() {
+      if (!('speechSynthesis' in window)) return;
+      if (speechSynthesis.speaking && !speechSynthesis.paused) {
+        speechSynthesis.pause();
+        state.paused = true;
+        readerStatus.textContent += ' — in pausa';
+      }
+    }
+
+    function stopReading() {
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      state.speaking = false;
+      state.paused = false;
+      readerStatus.textContent = 'Lettura fermata.';
+      renderCurrent();
+    }
+
+    function goToSection(delta) {
+      stopReading();
+      state.sectionIndex = Math.min(Math.max(state.sectionIndex + delta, 0), state.sections.length - 1);
+      state.paragraphIndex = 0;
+      renderCurrent();
+    }
+
+    async function init() {
+      try {
+        const response = await fetch(articleUrl, { cache: 'no-store' });
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        state.sections = buildSectionsFromArticle(doc);
+        if (!state.sections.length) throw new Error('Nessuna sezione narrativa trovata.');
+        renderCurrent();
+        readerStatus.textContent = `Pronto: ${state.sections.length} sezioni narrative rilevate.`;
+      } catch (error) {
+        readerStatus.textContent = `Errore: ${error.message}`;
+      }
+    }
+
+    playBtn.addEventListener('click', startReading);
+    pauseBtn.addEventListener('click', pauseReading);
+    stopBtn.addEventListener('click', stopReading);
+    prevBtn.addEventListener('click', () => goToSection(-1));
+    nextBtn.addEventListener('click', () => goToSection(1));
+    rateSelect.addEventListener('change', () => {
+      if (state.speaking) speakCurrentParagraph();
+    });
+
+    if ('speechSynthesis' in window) {
+      speechSynthesis.onvoiceschanged = chooseItalianVoice;
+    }
+
+    init();
+  </script>
+</body>
+</html>
