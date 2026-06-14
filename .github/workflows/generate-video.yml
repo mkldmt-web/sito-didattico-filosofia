@@ -3,6 +3,15 @@ name: Genera video articolo
 on:
   workflow_dispatch:
     inputs:
+      video_part:
+        description: "Parte da generare: 1, 2 oppure all"
+        required: true
+        default: "1"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "all"
       tts_voice:
         description: "Voce TTS da usare"
         required: false
@@ -47,9 +56,9 @@ jobs:
           TTS_VOICE=${{ github.event.inputs.tts_voice }}
           TTS_SPEED=${{ github.event.inputs.tts_speed }}
           TTS_OUTPUT_FORMAT=mp3
-          TTS_MAX_ATTEMPTS=8
-          TTS_RETRY_BASE_SECONDS=25
-          TTS_PAUSE_SECONDS=5
+          TTS_MAX_ATTEMPTS=10
+          TTS_RETRY_BASE_SECONDS=40
+          TTS_PAUSE_SECONDS=18
           VIDEO_RESOLUTION=1280x720
           VIDEO_FPS=24
           VIDEO_CRF=28
@@ -63,37 +72,43 @@ jobs:
             exit 1
           fi
 
-      - name: Generate video
+      - name: Generate selected video part
         run: |
-          python video-tools/generate_video.py --max-chars 1200
+          python video-tools/generate_video.py --part "${{ github.event.inputs.video_part }}" --max-chars 1500
 
       - name: Show generated files
         run: |
           ls -lh assets/video || true
-          du -h assets/video/quando-l-arte-era-una-soglia.mp4 || true
+          du -h assets/video/*.mp4 || true
 
       - name: Upload video artifact
         uses: actions/upload-artifact@v4
         with:
-          name: video-quando-l-arte-era-una-soglia
+          name: video-quando-l-arte-era-una-soglia-parte-${{ github.event.inputs.video_part }}
           path: |
-            assets/video/quando-l-arte-era-una-soglia.mp4
-            assets/video/quando-l-arte-era-una-soglia.vtt
+            assets/video/*.mp4
+            assets/video/*.vtt
 
-      - name: Commit video to repository if size is acceptable
+      - name: Commit generated video to repository if size is acceptable
         run: |
-          VIDEO="assets/video/quando-l-arte-era-una-soglia.mp4"
-          VTT="assets/video/quando-l-arte-era-una-soglia.vtt"
           MAX_SIZE=$((95 * 1024 * 1024))
-          ACTUAL_SIZE=$(stat -c%s "$VIDEO")
+          TOO_LARGE=0
 
-          if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
-            echo "Video too large for normal GitHub commit: $ACTUAL_SIZE bytes. Artifact uploaded instead."
+          for VIDEO in assets/video/*.mp4; do
+            [ -e "$VIDEO" ] || continue
+            ACTUAL_SIZE=$(stat -c%s "$VIDEO")
+            if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
+              echo "Video too large for normal GitHub commit: $VIDEO ($ACTUAL_SIZE bytes). Artifact uploaded instead."
+              TOO_LARGE=1
+            fi
+          done
+
+          if [ "$TOO_LARGE" -eq 1 ]; then
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$VIDEO" "$VTT"
-          git commit -m "Add generated audiovisual video" || echo "No changes to commit"
+          git add assets/video/*.mp4 assets/video/*.vtt
+          git commit -m "Add generated audiovisual video part ${{ github.event.inputs.video_part }}" || echo "No changes to commit"
           git push
