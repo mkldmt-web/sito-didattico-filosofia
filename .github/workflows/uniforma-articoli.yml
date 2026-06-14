@@ -72,6 +72,9 @@ jobs:
               s = s.replace(needle, replacement, 1)
           second.write_text(s, encoding="utf-8")
 
+          trigger = Path('.uniforma-trigger')
+          if trigger.exists():
+              trigger.unlink()
           workflow = Path('.github/workflows/uniforma-articoli.yml')
           if workflow.exists():
               workflow.unlink()
@@ -85,6 +88,6 @@ jobs:
             echo "Nessuna modifica da salvare."
             exit 0
           fi
-          git add quando-l-arte-era-una-soglia.html acque-pietre-citta.html .github/workflows/uniforma-articoli.yml
+          git add quando-l-arte-era-una-soglia.html acque-pietre-citta.html .github/workflows/uniforma-articoli.yml .uniforma-trigger
           git commit -m "Uniforma articoli e indici [skip uniforma]"
           git push
