@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 """Genera un vero video MP4 narrativo dall'articolo HTML.
 
-La pipeline estrae solo il testo narrativo, associa le immagini presenti
-nell'articolo, genera audio TTS scena per scena e monta un MP4 con ffmpeg.
+La pipeline:
+- estrae solo il testo narrativo dell'articolo;
+- associa le immagini già presenti nella pagina;
+- genera una traccia audio TTS scena per scena;
+- monta un MP4 con ffmpeg;
+- produce anche un file VTT per i sottotitoli.
+
+Questa versione è pensata per GitHub Actions: non deve fallire se una
+immagine esterna è irraggiungibile e gestisce i 429 del TTS con attese,
+ritentativi e messaggi leggibili.
 """
 from __future__ import annotations
 
@@ -17,7 +25,7 @@ import subprocess
 import sys
 import textwrap
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
@@ -46,7 +54,7 @@ DEFAULT_TITLE = "Quando l’arte era una soglia"
 
 IMAGE_HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (compatible; FilosofiaPerLiceiArtisticiVideo/1.1; "
+        "Mozilla/5.0 (compatible; FilosofiaPerLiceiArtisticiVideo/1.2; "
         "+https://mkldmt-web.github.io/sito-didattico-filosofia/)"
     ),
     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
@@ -98,6 +106,11 @@ def extract_image(figure: Tag) -> ImageRef | None:
 
 
 def split_into_scenes(text: str, max_chars: int) -> list[str]:
+    """Divide il testo in scene abbastanza lunghe da ridurre le chiamate TTS.
+
+    Scene troppo brevi producono un video frammentato e molte richieste audio.
+    Scene più lunghe danno una lettura più fluida e riducono il rischio di rate limit.
+    """
     sentences = re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-Ü0-9])", text)
     chunks: list[str] = []
     current = ""
@@ -232,7 +245,7 @@ def download_with_retries(url: str, raw: Path) -> None:
             response = requests.get(url, timeout=90, headers=IMAGE_HEADERS)
             if response.status_code == 429:
                 wait = 8 * attempt
-                print(f"Wikimedia/rate limit 429. Attendo {wait}s e riprovo ({attempt}/5): {url}")
+                print(f"Rate limit immagine 429. Attendo {wait}s e riprovo ({attempt}/5): {url}")
                 time.sleep(wait)
                 continue
             response.raise_for_status()
@@ -241,7 +254,7 @@ def download_with_retries(url: str, raw: Path) -> None:
                 raise RuntimeError(f"Risposta non immagine: {content_type}")
             raw.write_bytes(response.content)
             return
-        except Exception as exc:  # noqa: BLE001 - vogliamo fallback robusto in CI
+        except Exception as exc:  # noqa: BLE001 - fallback robusto in CI
             last_error = exc
             wait = 3 * attempt
             print(f"Avviso: download immagine fallito ({attempt}/5): {exc}. Riprovo tra {wait}s.")
@@ -258,7 +271,6 @@ def download_image(image: ImageRef, dest_dir: Path, resolution: tuple[int, int])
             download_with_retries(image.src, raw)
             with Image.open(raw) as im:
                 im = ImageOps.exif_transpose(im).convert("RGB")
-                # Normalizza in 16:9 con crop centrale: ffmpeg applicherà poi il Ken Burns.
                 im = ImageOps.fit(im, resolution, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
                 im.save(jpg, quality=92, optimize=True)
             raw.unlink(missing_ok=True)
@@ -270,16 +282,37 @@ def download_image(image: ImageRef, dest_dir: Path, resolution: tuple[int, int])
     return jpg
 
 
+def parse_tts_error(response: requests.Response) -> str:
+    try:
+        data = response.json()
+        error = data.get("error", data)
+        if isinstance(error, dict):
+            message = error.get("message") or str(error)
+            code = error.get("code")
+            error_type = error.get("type")
+            details = f"{message}"
+            if code:
+                details += f" | code={code}"
+            if error_type:
+                details += f" | type={error_type}"
+            return details
+        return str(data)
+    except Exception:  # noqa: BLE001
+        return response.text[:800]
+
+
 def synthesize(scene: Scene, audio_dir: Path, env: dict[str, str]) -> Path:
     fmt = env.get("TTS_OUTPUT_FORMAT", "mp3")
     audio_path = audio_dir / f"scene-{scene.index:03d}.{fmt}"
     if audio_path.exists() and audio_path.stat().st_size > 0:
         scene.audio_path = str(audio_path)
         return audio_path
+
     api_key = env.get("TTS_API_KEY")
     api_url = env.get("TTS_API_URL", "https://api.openai.com/v1/audio/speech")
     if not api_key or api_key == "inserisci_qui_la_tua_api_key":
-        raise RuntimeError("TTS_API_KEY mancante. Copia .env.example in .env e inserisci una API key valida.")
+        raise RuntimeError("TTS_API_KEY mancante. Inserisci OPENAI_API_KEY nei repository secrets GitHub.")
+
     payload = {
         "model": env.get("TTS_MODEL", "gpt-4o-mini-tts"),
         "voice": env.get("TTS_VOICE", "alloy"),
@@ -287,22 +320,66 @@ def synthesize(scene: Scene, audio_dir: Path, env: dict[str, str]) -> Path:
         "speed": float(env.get("TTS_SPEED", "0.95")),
         "response_format": fmt,
     }
-    response = requests.post(
-        api_url,
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        data=json.dumps(payload),
-        timeout=180,
-    )
-    response.raise_for_status()
-    audio_path.write_bytes(response.content)
-    scene.audio_path = str(audio_path)
-    return audio_path
+
+    max_attempts = int(env.get("TTS_MAX_ATTEMPTS", "8"))
+    base_wait = int(env.get("TTS_RETRY_BASE_SECONDS", "20"))
+    pause_between_calls = float(env.get("TTS_PAUSE_SECONDS", "4"))
+    last_error = ""
+
+    for attempt in range(1, max_attempts + 1):
+        print(f"TTS scena {scene.index}: tentativo {attempt}/{max_attempts}")
+        response = requests.post(
+            api_url,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            data=json.dumps(payload),
+            timeout=180,
+        )
+
+        if response.ok:
+            audio_path.write_bytes(response.content)
+            scene.audio_path = str(audio_path)
+            if pause_between_calls > 0:
+                time.sleep(pause_between_calls)
+            return audio_path
+
+        details = parse_tts_error(response)
+        last_error = f"HTTP {response.status_code}: {details}"
+        print(f"Avviso TTS scena {scene.index}: {last_error}")
+
+        if "insufficient_quota" in details or "billing" in details.lower() or "quota" in details.lower():
+            raise RuntimeError(
+                "OpenAI API non ha quota/credito disponibile per generare l'audio. "
+                "Controlla billing e crediti su platform.openai.com. Dettaglio: " + last_error
+            )
+
+        if response.status_code in {429, 500, 502, 503, 504} and attempt < max_attempts:
+            retry_after = response.headers.get("Retry-After")
+            wait = int(float(retry_after)) if retry_after else base_wait * attempt
+            print(f"Attendo {wait}s prima di riprovare il TTS.")
+            time.sleep(wait)
+            continue
+
+        response.raise_for_status()
+
+    raise RuntimeError(f"TTS fallito dopo {max_attempts} tentativi. Ultimo errore: {last_error}")
 
 
 def media_duration(path: Path) -> float:
-    result = subprocess.run([
-        "ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(path)
-    ], check=True, capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     return float(result.stdout.strip())
 
 
@@ -332,21 +409,45 @@ def make_scene_video(scene: Scene, scene_dir: Path, resolution: str, fps: int, c
         return out
     width, height = resolution.split("x", 1)
     frames = max(1, int(scene.duration * fps))
-    # Zoom quasi impercettibile e pan alternato, sobrio e lento.
-    x_expr = "iw/2-(iw/zoom/2)" if scene.index % 2 else "(iw-iw/zoom)*on/{frames}".format(frames=frames)
+    x_expr = "iw/2-(iw/zoom/2)" if scene.index % 2 else f"(iw-iw/zoom)*on/{frames}"
     y_expr = "ih/2-(ih/zoom/2)"
     vf = (
         f"scale={width}:{height}:force_original_aspect_ratio=increase,"
         f"crop={width}:{height},"
-        f"zoompan=z='min(zoom+0.00055,1.055)':d={frames}:x='{x_expr}':y='{y_expr}':s={resolution}:fps={fps},"
+        f"zoompan=z='min(zoom+0.00045,1.045)':d={frames}:x='{x_expr}':y='{y_expr}':s={resolution}:fps={fps},"
         "fade=t=in:st=0:d=0.7,"
         f"fade=t=out:st={max(scene.duration - 0.7, 0):.3f}:d=0.7"
     )
-    run([
-        "ffmpeg", "-y", "-loop", "1", "-i", scene.image.local_path, "-i", scene.audio_path,
-        "-t", f"{scene.duration:.3f}", "-vf", vf, "-c:v", "libx264", "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "192k", "-shortest", "-crf", crf, "-preset", preset, str(out)
-    ])
+    run(
+        [
+            "ffmpeg",
+            "-y",
+            "-loop",
+            "1",
+            "-i",
+            scene.image.local_path,
+            "-i",
+            scene.audio_path,
+            "-t",
+            f"{scene.duration:.3f}",
+            "-vf",
+            vf,
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-shortest",
+            "-crf",
+            crf,
+            "-preset",
+            preset,
+            str(out),
+        ]
+    )
     return out
 
 
@@ -358,15 +459,15 @@ def concat_videos(parts: list[Path], out: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Genera MP4 e VTT dall'articolo quando-l-arte-era-una-soglia.html")
-    parser.add_argument("--max-chars", type=int, default=420, help="lunghezza massima indicativa del testo di una scena")
+    parser.add_argument("--max-chars", type=int, default=1200, help="lunghezza massima indicativa del testo di una scena")
     parser.add_argument("--manifest-only", action="store_true", help="estrae scene e immagini senza chiamare TTS/ffmpeg")
     args = parser.parse_args()
 
     load_dotenv(ROOT / "video-tools" / ".env")
     env = os.environ.copy()
-    resolution = env.get("VIDEO_RESOLUTION", "1920x1080")
-    fps = int(env.get("VIDEO_FPS", "25"))
-    crf = env.get("VIDEO_CRF", "20")
+    resolution = env.get("VIDEO_RESOLUTION", "1280x720")
+    fps = int(env.get("VIDEO_FPS", "24"))
+    crf = env.get("VIDEO_CRF", "28")
     preset = env.get("VIDEO_PRESET", "medium")
     size = tuple(map(int, resolution.lower().split("x", 1)))
 
@@ -379,7 +480,7 @@ def main() -> None:
 
     scenes = extract_scenes(ARTICLE, args.max_chars)
     for scene in scenes:
-        download_image(scene.image, image_dir, size)  # cache locale per montaggio stabile
+        download_image(scene.image, image_dir, size)
 
     manifest = WORK_DIR / "scenes.json"
     manifest.write_text(json.dumps([asdict(scene) for scene in scenes], ensure_ascii=False, indent=2), encoding="utf-8")
@@ -409,6 +510,6 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         print(f"Errore: {exc}", file=sys.stderr)
         sys.exit(1)
