@@ -257,11 +257,10 @@ jobs:
 
         <hr>'''
 
-          def replace_section(content, start_id, replacement, until_next='</ul>'):
+          def replace_section(content, start_id, replacement):
               start = content.find(f'<h2 id="{start_id}">')
               if start < 0:
                   return content
-              # replace through the next hr or through last ul for end sections
               nxt = content.find('\n        <hr>', start + 1)
               close_article = content.find('\n      </div>', start + 1)
               if nxt < 0 or (close_article >= 0 and close_article < nxt):
@@ -276,7 +275,6 @@ jobs:
 
           def fix_article3(content):
               content = link_text(content)
-              # Add precise active links to iconography lists without changing the didactic structure.
               content = content.replace('<li>Tavoletta da Ebla.</li>', '<li><a href="https://www.metmuseum.org/toah/hd/ebla/hd_ebla.htm" target="_blank" rel="noopener noreferrer">Ebla e archivi palaziali — Metropolitan Museum</a>.</li>')
               content = content.replace('<li>Lettera di Amarna.</li>', '<li><a href="https://www.britishmuseum.org/collection/object/W_1888-1013-46" target="_blank" rel="noopener noreferrer">Lettera di Amarna — British Museum</a>.</li>')
               content = content.replace('<li>Porta di Ištar.</li>', '<li><a href="https://smarthistory.org/ishtar-gate-and-processional-way/" target="_blank" rel="noopener noreferrer">Porta di Ištar e via processionale — Smarthistory</a>.</li>')
@@ -290,7 +288,6 @@ jobs:
 
           def fix_article4(content):
               content = link_text(content)
-              # Convert generic final scientific resources into active links.
               content = content.replace('il <strong><a href="https://www.britishmuseum.org/collection" target="_blank" rel="noopener noreferrer">British Museum</a></strong> per la tavoletta di Petelia', 'il <strong><a href="https://www.britishmuseum.org/collection/object/G_1843-0724-3" target="_blank" rel="noopener noreferrer">British Museum — tavoletta aurea di Petelia</a></strong>')
               content = content.replace('l’archivio della rivista <strong><a href="https://archive.archaeology.org/" target="_blank" rel="noopener noreferrer">Archaeology</a></strong>', 'l’archivio della rivista <strong><a href="https://archive.archaeology.org/online/features/hades/" target="_blank" rel="noopener noreferrer">Archaeology — Rethinking the Halls of Hades</a></strong>')
               return content
