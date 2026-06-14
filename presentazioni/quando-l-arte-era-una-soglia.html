@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentazione | Quando l’arte era una soglia</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08090d;
+      --panel: #11141c;
+      --panel-soft: rgba(17, 20, 28, 0.78);
+      --text: #f1eee8;
+      --muted: #bbb3a6;
+      --accent: #d6b56d;
+      --accent-soft: rgba(214, 181, 109, 0.18);
+      --line: rgba(241, 238, 232, 0.16);
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(214, 181, 109, 0.16), transparent 34rem),
+        linear-gradient(135deg, #08090d 0%, #11141c 48%, #07080c 100%);
+      color: var(--text);
+    }
+
+    a { color: inherit; }
+
+    .deck {
+      position: relative;
+      min-height: 100vh;
+      padding: clamp(1rem, 3vw, 2.5rem);
+    }
+
+    .slide {
+      position: absolute;
+      inset: clamp(1rem, 3vw, 2.5rem);
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+      gap: clamp(1.5rem, 4vw, 4.5rem);
+      align-items: center;
+      opacity: 0;
+      transform: translateX(2.5rem) scale(0.985);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+
+    .slide.is-active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .slide-card {
+      padding: clamp(1.6rem, 4vw, 4rem);
+      border: 1px solid var(--line);
+      border-radius: 2rem;
+      background: linear-gradient(180deg, var(--panel-soft), rgba(9, 11, 16, 0.82));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .kicker {
+      margin: 0 0 1rem;
+      color: var(--accent);
+      font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2 {
+      margin: 0;
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 6.6vw, 6.9rem);
+      line-height: 0.93;
+      letter-spacing: -0.055em;
+    }
+
+    h2 { font-size: clamp(2.2rem, 5.8vw, 5.7rem); }
+
+    .guide {
+      max-width: 34rem;
+      margin: 1.5rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1.15rem, 2vw, 1.65rem);
+      line-height: 1.35;
+    }
+
+    ul {
+      margin: clamp(1.5rem, 3vw, 2.4rem) 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    li {
+      position: relative;
+      padding-left: 1.35rem;
+      color: #e8e1d4;
+      font-size: clamp(1.15rem, 2.1vw, 1.75rem);
+      line-height: 1.3;
+    }
+
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.75em;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 0.35rem var(--accent-soft);
+    }
+
+    figure {
+      margin: 0;
+      min-height: 72vh;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 2rem;
+      background: #050609;
+      box-shadow: var(--shadow);
+    }
+
+    figure img {
+      width: 100%;
+      height: 100%;
+      min-height: 72vh;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.9) contrast(1.03) brightness(0.82);
+    }
+
+    figcaption {
+      position: absolute;
+      right: clamp(1rem, 3vw, 2.5rem);
+      bottom: clamp(5.4rem, 7vw, 6.8rem);
+      max-width: 32rem;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      background: rgba(5, 6, 9, 0.72);
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      backdrop-filter: blur(10px);
+    }
+
+    .controls {
+      position: fixed;
+      left: 50%;
+      bottom: 1.3rem;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      transform: translateX(-50%);
+      padding: 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(8, 9, 13, 0.78);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    button, .back-link {
+      border: 1px solid rgba(214, 181, 109, 0.45);
+      border-radius: 999px;
+      background: rgba(214, 181, 109, 0.12);
+      color: var(--text);
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      font-size: 1.3rem;
+    }
+
+    button:hover, button:focus-visible, .back-link:hover, .back-link:focus-visible {
+      outline: none;
+      background: rgba(214, 181, 109, 0.24);
+    }
+
+    .counter {
+      min-width: 4.8rem;
+      color: var(--muted);
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+
+    .back-link {
+      position: fixed;
+      top: 1.2rem;
+      left: 1.2rem;
+      z-index: 11;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+    }
+
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+      .deck { min-height: auto; padding-bottom: 6rem; }
+      .slide {
+        position: static;
+        display: none;
+        grid-template-columns: 1fr;
+        min-height: calc(100vh - 7rem);
+      }
+      .slide.is-active { display: grid; }
+      figure, figure img { min-height: 36vh; }
+      figcaption { position: static; margin-top: -3.7rem; transform: translateY(4.4rem); }
+      h1, h2 { max-width: 100%; }
+    }
+
+    @media print {
+      @page { size: 16cm 9cm; margin: 0; }
+      body { overflow: visible; background: #fff; color: #111; }
+      .back-link, .controls { display: none; }
+      .deck { padding: 0; }
+      .slide, .slide.is-active {
+        position: relative;
+        inset: auto;
+        display: grid;
+        page-break-after: always;
+        width: 16cm;
+        height: 9cm;
+        padding: 0.7cm;
+        opacity: 1;
+        transform: none;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 0.5cm;
+        background: #11141c;
+        color: #f1eee8;
+      }
+      .slide-card { padding: 0.55cm; box-shadow: none; }
+      h1, h2 { font-size: 0.85cm; }
+      .guide, li { font-size: 0.34cm; }
+      figure, figure img { min-height: 0; height: 7.6cm; box-shadow: none; }
+      figcaption { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="../quando-l-arte-era-una-soglia.html">← Torna all’articolo</a>
+
+  <main class="deck" aria-live="polite">
+    <section class="slide is-active" aria-label="Slide 1">
+      <div class="slide-card">
+        <p class="kicker">Quando l’arte era una soglia</p>
+        <h1>Dare forma all’assoluto</h1>
+        <p class="guide">Come immagini, corpi, suoni e spazi hanno aperto un contatto con ciò che supera l’esperienza ordinaria?</p>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Crocuta%20crocuta%20cave%20art%20-%20Chauvet%20cave.png?width=1000" alt="Figura animale dalla grotta Chauvet">
+        <figcaption>Grotta Chauvet, figura animale su parete rocciosa. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 2">
+      <div class="slide-card">
+        <p class="kicker">Metodo</p>
+        <h2>Tracce, non origine</h2>
+        <ul>
+          <li>Le date sono soglie documentarie.</li>
+          <li>Nuove scoperte possono spostarle.</li>
+          <li>L’assenza di prove non chiude l’enigma.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Apollo-11-cave-stone-zebra.jpg?width=900" alt="Pietra dipinta Apollo 11 Cave Stones">
+        <figcaption>Apollo 11 Cave Stones, supporto mobile dipinto. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 3">
+      <div class="slide-card">
+        <p class="kicker">Corpo e materia</p>
+        <h2>Volume, mano, presenza</h2>
+        <ul>
+          <li>Piccole figure portatili e tattili.</li>
+          <li>Ventre, fianchi, materia, potenza.</li>
+          <li>La forma concentra un’esperienza.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Venus%20of%20Willendorf.jpg?width=800" alt="Venus of Willendorf">
+        <figcaption>Venus of Willendorf. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 4">
+      <div class="slide-card">
+        <p class="kicker">Parete</p>
+        <h2>Animale in movimento</h2>
+        <ul>
+          <li>La roccia non è sfondo neutro.</li>
+          <li>Ombra, rilievo e luce partecipano.</li>
+          <li>La grotta diventa ambiente visivo.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Crocuta%20crocuta%20cave%20art%20-%20Chauvet%20cave.png?width=1000" alt="Disegno rupestre dalla grotta Chauvet">
+        <figcaption>Grotta Chauvet, supporto e immagine come ambiente. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 5">
+      <div class="slide-card">
+        <p class="kicker">Suono e rito</p>
+        <h2>Il corpo diventa soglia</h2>
+        <ul>
+          <li>Fiato, ritmo, gruppo, ripetizione.</li>
+          <li>La danza modifica l’attenzione.</li>
+          <li>Il gesto produce presenza condivisa.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Rock%20painting%20of%20a%20dance%20performance.jpg?width=1100" alt="Pittura rupestre con scena di danza a Tassili n’Ajjer">
+        <figcaption>Tassili n’Ajjer, corpi in movimento. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 6">
+      <div class="slide-card">
+        <p class="kicker">Morte</p>
+        <h2>Volto, assenza, memoria</h2>
+        <ul>
+          <li>Il morto resta nel campo dei vivi.</li>
+          <li>La materia riceve un volto.</li>
+          <li>La scultura custodisce presenza.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://media.britishmuseum.org/media/Repository/Documents/2014_10/3_7/04eaf4ba_04d1_4383_a933_a3b90074b2b0/mid_00347883_001.jpg" alt="Jericho Skull del British Museum">
+        <figcaption>Jericho Skull, cranio intonacato. Fonte: British Museum.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 7">
+      <div class="slide-card">
+        <p class="kicker">Spazio orientato</p>
+        <h2>Recinti, pietre, cielo</h2>
+        <ul>
+          <li>Entrare, disporsi, guardare.</li>
+          <li>Il recinto separa e prepara.</li>
+          <li>La pietra orienta il corpo.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/The%20archaeological%20site%20of%20G%C3%B6bekli%20Tepe%20-%20main%20excavation%20area.png?width=1100" alt="Area principale di Göbekli Tepe">
+        <figcaption>Göbekli Tepe, recinti e pilastri. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 8">
+      <div class="slide-card">
+        <p class="kicker">Città sacre</p>
+        <h2>Tempio, potere, scrittura</h2>
+        <ul>
+          <li>Lo spazio diventa centro.</li>
+          <li>La città ordina comunità e memoria.</li>
+          <li>Il sacro assume forma politica.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Hierakonpolis%20tomb%20painting.jpg?width=1100" alt="Pittura della tomba 100 di Hierakonpolis">
+        <figcaption>Hierakonpolis, Tomba 100. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 9">
+      <div class="slide-card">
+        <p class="kicker">Disciplina dello sguardo</p>
+        <h2>Quattro livelli</h2>
+        <ul>
+          <li>Dato documentabile.</li>
+          <li>Interpretazione antropologica.</li>
+          <li>Ipotesi simbolica.</li>
+          <li>Speculazione filosofica.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Konya%20Archaeological%20Museum%20Catalh%C3%B6y%C3%BCk%20wall%20painting%204612.jpg?width=1100" alt="Pittura murale da Çatalhöyük">
+        <figcaption>Çatalhöyük, pittura murale e spazio domestico. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 10">
+      <div class="slide-card">
+        <p class="kicker">Per chi studia arte</p>
+        <h2>Forma come esperienza</h2>
+        <ul>
+          <li>Una linea orienta.</li>
+          <li>Un colore modifica la percezione.</li>
+          <li>Uno spazio costruisce attenzione.</li>
+          <li>Un oggetto può diventare presenza.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Calendar%20aswan.JPG?width=1100" alt="Cerchio di pietre di Nabta Playa ricostruito">
+        <figcaption>Nabta Playa, cerchio di pietre ricostruito. Fonte: Wikimedia Commons.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 11">
+      <div class="slide-card">
+        <p class="kicker">Discussione</p>
+        <h2>Domande per la classe</h2>
+        <ul>
+          <li>Una forma può pensare?</li>
+          <li>Un’immagine può rendere presente qualcosa?</li>
+          <li>Il corpo conosce in modo diverso dalla parola?</li>
+          <li>Uno spazio può trasformare la coscienza?</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/ASC%20Leiden%20-%20van%20de%20Bruinhorst%20Collection%20-%20Somaliland%202019%20-%204577%20-%20Red%20and%20white%20rock%20paintings%20of%20a%20bovine%20in%20the%20caves%20of%20Laas%20Geel.jpg?width=1100" alt="Pittura rupestre di bovino a Laas Geel">
+        <figcaption>Laas Geel, pittura rupestre policroma. Fonte: Wikimedia Commons / ASC Leiden.</figcaption>
+      </figure>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Controlli presentazione">
+    <button type="button" id="prev" aria-label="Slide precedente">←</button>
+    <span class="counter" id="counter">1 / 11</span>
+    <button type="button" id="next" aria-label="Slide successiva">→</button>
+  </nav>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.querySelector('#counter');
+    const prev = document.querySelector('#prev');
+    const next = document.querySelector('#next');
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('is-active', slideIndex === current);
+      });
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      const hash = `slide-${current + 1}`;
+      if (location.hash !== `#${hash}`) {
+        history.replaceState(null, '', `#${hash}`);
+      }
+    }
+
+    function fromHash() {
+      const match = location.hash.match(/slide-(\d+)/);
+      if (match) showSlide(Number(match[1]) - 1);
+    }
+
+    prev.addEventListener('click', () => showSlide(current - 1));
+    next.addEventListener('click', () => showSlide(current + 1));
+    document.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+      if (event.key === 'Home') showSlide(0);
+      if (event.key === 'End') showSlide(slides.length - 1);
+    });
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+    showSlide(current);
+  </script>
+</body>
+</html>
