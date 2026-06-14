@@ -1,0 +1,90 @@
+name: Uniforma articoli e indici
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[skip uniforma]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Uniforma articoli
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          first = Path("quando-l-arte-era-una-soglia.html")
+          s = first.read_text(encoding="utf-8")
+          first_index = '''        <nav class="media-cluster" aria-labelledby="indice-corpi-grotte-presenze">
+          <h2 id="indice-corpi-grotte-presenze">Indice</h2>
+          <ol>
+            <li><a href="#entrare-nel-tema">Entrare nel tema</a></li>
+            <li><a href="#pareti-corpi-suoni">Pareti, corpi, suoni</a></li>
+            <li><a href="#sepolture-volti-presenze">Sepolture, volti, presenze</a></li>
+            <li><a href="#corpo-ritmo-trance">Corpo, ritmo, trance</a></li>
+            <li><a href="#recinti-pietre-cielo">Recinti, pietre, cielo</a></li>
+            <li><a href="#per-chi-studia-arte-sintesi-operativa">Per chi studia arte: sintesi operativa</a></li>
+            <li><a href="#discussione-in-classe">Discussione in classe</a></li>
+            <li><a href="#laboratorio-proposta-operativa">Laboratorio: proposta operativa</a></li>
+            <li><a href="#rubrica-di-valutazione">Rubrica di valutazione</a></li>
+            <li><a href="#bibliografia-e-sitografia-ragionata">Bibliografia e sitografia ragionata</a></li>
+          </ol>
+        </nav>
+
+'''
+          if 'id="indice-corpi-grotte-presenze"' not in s:
+              needle = '      <p class="article-action"><a class="button" href="presentazioni/quando-l-arte-era-una-soglia.html">Apri la presentazione della lezione</a></p>\n      <div class="article-content">\n'
+              replacement = '      <p class="article-action"><a class="button" href="presentazioni/quando-l-arte-era-una-soglia.html">Apri la presentazione della lezione</a></p>\n      <div class="article-content">\n' + first_index
+              if needle not in s:
+                  raise SystemExit('Punto di inserimento indice non trovato nel primo articolo')
+              s = s.replace(needle, replacement, 1)
+
+          anchors = {
+              '<h2>Entrare nel tema</h2>': '<h2 id="entrare-nel-tema">Entrare nel tema</h2>',
+              '<h2>Pareti, corpi, suoni</h2>': '<h2 id="pareti-corpi-suoni">Pareti, corpi, suoni</h2>',
+              '<h2>Sepolture, volti, presenze</h2>': '<h2 id="sepolture-volti-presenze">Sepolture, volti, presenze</h2>',
+              '<h2>Corpo, ritmo, trance</h2>': '<h2 id="corpo-ritmo-trance">Corpo, ritmo, trance</h2>',
+              '<h2>Recinti, pietre, cielo</h2>': '<h2 id="recinti-pietre-cielo">Recinti, pietre, cielo</h2>',
+              '<h2>Per chi studia arte: sintesi operativa</h2>': '<h2 id="per-chi-studia-arte-sintesi-operativa">Per chi studia arte: sintesi operativa</h2>',
+              '<h2>Discussione in classe</h2>': '<h2 id="discussione-in-classe">Discussione in classe</h2>',
+              '<h2>Laboratorio: proposta operativa</h2>': '<h2 id="laboratorio-proposta-operativa">Laboratorio: proposta operativa</h2>',
+              '<h2>Rubrica di valutazione</h2>': '<h2 id="rubrica-di-valutazione">Rubrica di valutazione</h2>',
+              '<h2>Bibliografia e sitografia ragionata</h2>': '<h2 id="bibliografia-e-sitografia-ragionata">Bibliografia e sitografia ragionata</h2>',
+          }
+          for old, new in anchors.items():
+              s = s.replace(old, new)
+          first.write_text(s, encoding="utf-8")
+
+          second = Path("acque-pietre-citta.html")
+          s = second.read_text(encoding="utf-8")
+          header_part = s.split('<div class="article-content">', 1)[0]
+          if 'presentazioni/acque-pietre-citta-parte-1.html' not in header_part:
+              needle = '      </header>\n\n      <div class="article-content">'
+              replacement = '      </header>\n      <p class="article-action"><a class="button" href="presentazioni/acque-pietre-citta-parte-1.html">Apri la presentazione della lezione</a></p>\n\n      <div class="article-content">'
+              if needle not in s:
+                  raise SystemExit('Punto di inserimento pulsante non trovato nel secondo articolo')
+              s = s.replace(needle, replacement, 1)
+          second.write_text(s, encoding="utf-8")
+
+          workflow = Path('.github/workflows/uniforma-articoli.yml')
+          if workflow.exists():
+              workflow.unlink()
+          PY
+
+      - name: Commit modifiche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "Nessuna modifica da salvare."
+            exit 0
+          fi
+          git add quando-l-arte-era-una-soglia.html acque-pietre-citta.html .github/workflows/uniforma-articoli.yml
+          git commit -m "Uniforma articoli e indici [skip uniforma]"
+          git push
