@@ -26,6 +26,25 @@
         <h1>Quando l’arte era una soglia</h1>
         <p class="article-subtitle">Tracce, immagini, corpi e spazi sacri davanti all’enigma dell’assoluto</p>
       </header>
+      <section class="audiovisual-reader" aria-labelledby="audiovisual-reader-title">
+        <div class="audiovisual-reader__intro">
+          <p class="section-label">Video-lettura</p>
+          <h2 id="audiovisual-reader-title">Versione audiovisiva</h2>
+          <p>Ascolta una lettura sincronizzata con le immagini già presenti nell’articolo. Il lettore usa la voce italiana più naturale disponibile nel browser e seleziona soltanto le parti narrative del testo.</p>
+        </div>
+        <div class="audiovisual-reader__stage" aria-live="polite">
+          <figure class="audiovisual-reader__figure">
+            <img id="audiovisual-reader-image" src="" alt="" loading="lazy">
+            <figcaption id="audiovisual-reader-caption"></figcaption>
+          </figure>
+          <p id="audiovisual-reader-text" class="audiovisual-reader__text">Premi “Avvia” per cominciare la video-lettura.</p>
+        </div>
+        <div class="audiovisual-reader__controls" role="group" aria-label="Controlli della versione audiovisiva">
+          <button type="button" id="audiovisual-reader-toggle" class="button">Avvia</button>
+          <button type="button" id="audiovisual-reader-stop" class="button button-secondary">Stop</button>
+          <span id="audiovisual-reader-status" class="audiovisual-reader__status">Pronto</span>
+        </div>
+      </section>
       <div class="article-content">
         <blockquote><strong>Nota cronologica</strong> Le date di questo articolo indicano soglie documentarie: tracce arrivate fino a noi, riconosciute, studiate e datate con gli strumenti disponibili. Nuove scoperte e nuovi metodi possono spostare queste soglie all’indietro. L’assenza di documentazione precedente indica il bordo attuale della nostra conoscenza, non il limite dell’esperienza umana.</blockquote>
         <hr>
@@ -472,5 +491,180 @@ Fonte principale per <a href="https://www.metmuseum.org/essays/uruk-the-first-ci
   <footer class="site-footer">
     <p>© Filosofia per Licei Artistici — materiale didattico aperto alla rielaborazione in classe.</p>
   </footer>
+
+  <script>
+    (function () {
+      const reader = document.querySelector('.audiovisual-reader');
+      const content = document.querySelector('.article-content');
+      const toggleButton = document.getElementById('audiovisual-reader-toggle');
+      const stopButton = document.getElementById('audiovisual-reader-stop');
+      const status = document.getElementById('audiovisual-reader-status');
+      const stageImage = document.getElementById('audiovisual-reader-image');
+      const stageCaption = document.getElementById('audiovisual-reader-caption');
+      const stageText = document.getElementById('audiovisual-reader-text');
+
+      if (!reader || !content || !('speechSynthesis' in window)) {
+        if (reader) {
+          reader.classList.add('audiovisual-reader--unsupported');
+          stageText.textContent = 'La sintesi vocale non è disponibile in questo browser.';
+          status.textContent = 'Non supportato';
+          toggleButton.disabled = true;
+          stopButton.disabled = true;
+        }
+        return;
+      }
+
+      const excludedHeadings = new Set([
+        'Laboratori della soglia',
+        'Bibliografia ragionata',
+        'Sitografia e materiali visivi'
+      ]);
+
+      function collectNarrativeBlocks() {
+        const blocks = [];
+        let h2AllowsReading = false;
+        let insideServiceSubsection = false;
+
+        Array.from(content.children).forEach((node) => {
+          if (node.tagName === 'H2') {
+            const title = node.textContent.trim();
+            h2AllowsReading = !excludedHeadings.has(title);
+            insideServiceSubsection = false;
+            return;
+          }
+
+          if (!h2AllowsReading) return;
+
+          if (node.tagName === 'H3') {
+            insideServiceSubsection = true;
+            return;
+          }
+
+          if (insideServiceSubsection || node.tagName !== 'P') return;
+
+          const text = node.textContent.replace(/\s+/g, ' ').trim();
+          if (text) blocks.push(text);
+        });
+
+        return blocks;
+      }
+
+      const narrativeBlocks = collectNarrativeBlocks();
+      const figures = Array.from(content.querySelectorAll('.article-figure figure')).filter((figure) => {
+        const laboratori = Array.from(content.querySelectorAll('h2')).find((heading) => heading.textContent.trim() === 'Laboratori della soglia');
+        return !laboratori || Boolean(figure.compareDocumentPosition(laboratori) & Node.DOCUMENT_POSITION_FOLLOWING);
+      }).map((figure) => {
+        const img = figure.querySelector('img');
+        const caption = figure.querySelector('figcaption');
+        return {
+          src: img ? img.currentSrc || img.src : '',
+          alt: img ? img.alt : '',
+          caption: caption ? caption.textContent.replace(/\s+/g, ' ').trim() : ''
+        };
+      }).filter((image) => image.src);
+
+      let voices = [];
+      let currentIndex = 0;
+      let isPaused = false;
+
+      function scoreItalianVoice(voice) {
+        const haystack = `${voice.name} ${voice.voiceURI}`.toLowerCase();
+        let score = voice.lang.toLowerCase().startsWith('it') ? 100 : 0;
+        if (voice.lang.toLowerCase() === 'it-it') score += 30;
+        if (voice.localService) score += 8;
+        if (/google|microsoft|natural|neural|premium|enhanced|elsa|alice|paola|federica|diego|luca/.test(haystack)) score += 18;
+        return score;
+      }
+
+      function selectItalianVoice() {
+        voices = window.speechSynthesis.getVoices();
+        return voices
+          .filter((voice) => voice.lang.toLowerCase().startsWith('it'))
+          .sort((a, b) => scoreItalianVoice(b) - scoreItalianVoice(a))[0] || voices[0] || null;
+      }
+
+      function updateStage() {
+        if (!narrativeBlocks.length) return;
+        const image = figures.length ? figures[Math.min(figures.length - 1, Math.floor((currentIndex / narrativeBlocks.length) * figures.length))] : null;
+        if (image) {
+          stageImage.src = image.src;
+          stageImage.alt = image.alt;
+          stageCaption.textContent = image.caption;
+        }
+        stageText.textContent = narrativeBlocks[currentIndex];
+      }
+
+      function speakCurrentBlock() {
+        if (currentIndex >= narrativeBlocks.length) {
+          stopReading(true);
+          status.textContent = 'Lettura completata';
+          return;
+        }
+
+        updateStage();
+        const utterance = new SpeechSynthesisUtterance(narrativeBlocks[currentIndex]);
+        const voice = selectItalianVoice();
+        if (voice) utterance.voice = voice;
+        utterance.lang = voice ? voice.lang : 'it-IT';
+        utterance.rate = 0.92;
+        utterance.pitch = 1;
+        utterance.onend = function () {
+          if (!isPaused) {
+            currentIndex += 1;
+            speakCurrentBlock();
+          }
+        };
+        utterance.onerror = function () {
+          status.textContent = 'Errore nella sintesi vocale';
+          toggleButton.textContent = 'Avvia';
+        };
+        window.speechSynthesis.speak(utterance);
+        toggleButton.textContent = 'Pausa';
+        status.textContent = `In lettura ${currentIndex + 1}/${narrativeBlocks.length}`;
+      }
+
+      function startOrPauseReading() {
+        if (window.speechSynthesis.speaking && !isPaused) {
+          window.speechSynthesis.pause();
+          isPaused = true;
+          toggleButton.textContent = 'Avvia';
+          status.textContent = 'In pausa';
+          return;
+        }
+
+        if (isPaused) {
+          window.speechSynthesis.resume();
+          isPaused = false;
+          toggleButton.textContent = 'Pausa';
+          status.textContent = `In lettura ${currentIndex + 1}/${narrativeBlocks.length}`;
+          return;
+        }
+
+        if (!narrativeBlocks.length) {
+          status.textContent = 'Nessun testo narrativo disponibile';
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        speakCurrentBlock();
+      }
+
+      function stopReading(keepStage) {
+        window.speechSynthesis.cancel();
+        isPaused = false;
+        currentIndex = 0;
+        toggleButton.textContent = 'Avvia';
+        if (!keepStage) {
+          updateStage();
+          status.textContent = 'Fermato';
+        }
+      }
+
+      window.speechSynthesis.onvoiceschanged = selectItalianVoice;
+      toggleButton.addEventListener('click', startOrPauseReading);
+      stopButton.addEventListener('click', function () { stopReading(false); });
+      updateStage();
+    }());
+  </script>
 </body>
 </html>
