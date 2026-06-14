@@ -1,0 +1,96 @@
+name: Genera video articolo
+
+on:
+  workflow_dispatch:
+    inputs:
+      tts_voice:
+        description: "Voce TTS da usare"
+        required: false
+        default: "alloy"
+      tts_speed:
+        description: "Velocità voce"
+        required: false
+        default: "0.95"
+
+permissions:
+  contents: write
+
+jobs:
+  generate-video:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r video-tools/requirements.txt
+
+      - name: Configure TTS environment
+        run: |
+          cat > video-tools/.env <<EOF
+          TTS_API_URL=https://api.openai.com/v1/audio/speech
+          TTS_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          TTS_MODEL=tts-1-hd
+          TTS_VOICE=${{ github.event.inputs.tts_voice }}
+          TTS_SPEED=${{ github.event.inputs.tts_speed }}
+          TTS_OUTPUT_FORMAT=mp3
+          VIDEO_RESOLUTION=1280x720
+          VIDEO_FPS=24
+          VIDEO_CRF=28
+          VIDEO_PRESET=medium
+          EOF
+
+      - name: Check secret is available
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "Missing OPENAI_API_KEY secret. Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Generate video
+        run: |
+          python video-tools/generate_video.py
+
+      - name: Show generated files
+        run: |
+          ls -lh assets/video || true
+          du -h assets/video/quando-l-arte-era-una-soglia.mp4 || true
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-quando-l-arte-era-una-soglia
+          path: |
+            assets/video/quando-l-arte-era-una-soglia.mp4
+            assets/video/quando-l-arte-era-una-soglia.vtt
+
+      - name: Commit video to repository if size is acceptable
+        run: |
+          VIDEO="assets/video/quando-l-arte-era-una-soglia.mp4"
+          VTT="assets/video/quando-l-arte-era-una-soglia.vtt"
+          MAX_SIZE=$((95 * 1024 * 1024))
+          ACTUAL_SIZE=$(stat -c%s "$VIDEO")
+
+          if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
+            echo "Video too large for normal GitHub commit: $ACTUAL_SIZE bytes. Artifact uploaded instead."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$VIDEO" "$VTT"
+          git commit -m "Add generated audiovisual video" || echo "No changes to commit"
+          git push
