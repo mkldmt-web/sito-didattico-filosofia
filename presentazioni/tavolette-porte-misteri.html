@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentazione | Tavolette, porte, misteri</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07090c;
+      --panel: #10151c;
+      --panel-soft: rgba(16, 21, 28, 0.82);
+      --text: #f4efe5;
+      --muted: #c6bba8;
+      --accent: #d2a25c;
+      --accent-soft: rgba(210, 162, 92, 0.18);
+      --line: rgba(244, 239, 229, 0.16);
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.52);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(123, 63, 85, 0.22), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(210, 162, 92, 0.18), transparent 30rem),
+        linear-gradient(135deg, #07090c 0%, #11151d 48%, #06070a 100%);
+      color: var(--text);
+    }
+    a { color: inherit; }
+    .deck { position: relative; min-height: 100vh; padding: clamp(1rem, 3vw, 2.5rem); }
+    .slide {
+      position: absolute;
+      inset: clamp(1rem, 3vw, 2.5rem);
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+      gap: clamp(1.5rem, 4vw, 4.5rem);
+      align-items: center;
+      opacity: 0;
+      transform: translateX(2.5rem) scale(0.985);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+    .slide.is-active { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }
+    .slide-card {
+      padding: clamp(1.6rem, 4vw, 4rem);
+      border: 1px solid var(--line);
+      border-radius: 2rem;
+      background: linear-gradient(180deg, var(--panel-soft), rgba(7, 9, 12, 0.86));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .kicker {
+      margin: 0 0 1rem;
+      color: var(--accent);
+      font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    h1, h2 {
+      margin: 0;
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.35rem, 6.3vw, 6.5rem);
+      line-height: 0.94;
+      letter-spacing: -0.055em;
+    }
+    h2 { font-size: clamp(2.15rem, 5.6vw, 5.45rem); }
+    .guide {
+      max-width: 35rem;
+      margin: 1.5rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1.12rem, 2vw, 1.58rem);
+      line-height: 1.36;
+    }
+    ul { margin: clamp(1.5rem, 3vw, 2.4rem) 0 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; }
+    li { position: relative; padding-left: 1.35rem; color: #eadfce; font-size: clamp(1.08rem, 2vw, 1.65rem); line-height: 1.31; }
+    li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0.35rem var(--accent-soft); }
+    figure { position: relative; margin: 0; min-height: 72vh; overflow: hidden; border: 1px solid var(--line); border-radius: 2rem; background: #050609; box-shadow: var(--shadow); }
+    figure img { width: 100%; height: 100%; min-height: 72vh; object-fit: cover; display: block; filter: saturate(0.92) contrast(1.05) brightness(0.82); }
+    figcaption { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; padding: 0.8rem 0.95rem; border: 1px solid var(--line); border-radius: 0.95rem; background: rgba(5, 6, 9, 0.80); color: var(--muted); font-size: clamp(0.72rem, 1vw, 0.88rem); line-height: 1.38; backdrop-filter: blur(10px); }
+    .controls { position: fixed; left: 50%; bottom: 1.3rem; z-index: 10; display: flex; align-items: center; gap: 0.85rem; transform: translateX(-50%); padding: 0.75rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(7, 9, 12, 0.78); box-shadow: var(--shadow); backdrop-filter: blur(14px); }
+    button, .back-link { border: 1px solid rgba(210, 162, 92, 0.45); border-radius: 999px; background: rgba(210, 162, 92, 0.12); color: var(--text); font: inherit; font-weight: 750; cursor: pointer; }
+    button { min-width: 2.75rem; min-height: 2.75rem; font-size: 1.3rem; }
+    button:hover, button:focus-visible, .back-link:hover, .back-link:focus-visible { outline: none; background: rgba(210, 162, 92, 0.24); }
+    .counter { min-width: 4.8rem; color: var(--muted); font-weight: 800; text-align: center; letter-spacing: 0.08em; }
+    .back-link { position: fixed; top: 1.2rem; left: 1.2rem; z-index: 11; padding: 0.75rem 1rem; text-decoration: none; }
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+      .deck { min-height: auto; padding-bottom: 6rem; }
+      .slide { position: static; display: none; grid-template-columns: 1fr; min-height: calc(100vh - 7rem); }
+      .slide.is-active { display: grid; }
+      figure, figure img { min-height: 42vh; }
+      figcaption { position: static; border-radius: 0; }
+      h1, h2 { max-width: 100%; }
+    }
+    @media print {
+      @page { size: 16cm 9cm; margin: 0; }
+      body { overflow: visible; background: #fff; color: #111; }
+      .back-link, .controls { display: none; }
+      .deck { padding: 0; }
+      .slide, .slide.is-active { position: relative; inset: auto; display: grid; min-height: 100vh; page-break-after: always; opacity: 1; transform: none; color: #111; background: #fff; }
+      .slide-card, figure { box-shadow: none; border-color: #ddd; background: #fff; }
+      .kicker, li::before { color: #8b5a2b; }
+      .guide, li, figcaption { color: #333; }
+      figure img { filter: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="../tavolette-porte-misteri.html">← Articolo</a>
+  <main class="deck" aria-live="polite">
+      <section class="slide is-active" data-slide="1">
+        <div class="slide-card">
+          <p class="kicker">Articolo 3</p>
+          <h1>Tavolette, porte, misteri</h1>
+          <p class="guide">Oggetti e luoghi che ordinano memoria, potere, scambio e destino.</p>
+          <ul>
+            <li>Prima della filosofia greca argomentativa</li>
+<li>Argilla, porta, porto, palazzo, tomba, santuario</li>
+<li>Il sapere passa attraverso forme visibili</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Amarna_Letter_EA_19.jpg?width=1300" alt="Lettera di Amarna: una tavoletta diplomatica trasforma la parola politica in memoria conservabile.">
+          <figcaption>Lettera di Amarna: una tavoletta diplomatica trasforma la parola politica in memoria conservabile.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="2">
+        <div class="slide-card">
+          <p class="kicker">Domanda guida</p>
+          <h2>Oggetti che pensano</h2>
+          <p class="guide">Una civiltà organizza il mondo anche attraverso supporti, accessi, spazi e rituali.</p>
+          <ul>
+            <li>La tavoletta conserva</li>
+<li>La porta orienta il corpo</li>
+<li>Il porto traduce</li>
+<li>Il santuario trasforma l’esperienza</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Cuneiform_tablet_with_a_seal_impression._Old_Babylonian_period._From_Mesopotamia,_Iraq._The_British_Museum.jpg?width=1300" alt="Tavoletta con impronta di sigillo: scrittura, autorità e memoria entrano nello stesso oggetto.">
+          <figcaption>Tavoletta con impronta di sigillo: scrittura, autorità e memoria entrano nello stesso oggetto.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="3">
+        <div class="slide-card">
+          <p class="kicker">1. Tavoletta</p>
+          <h2>Dalla voce all’archivio</h2>
+          <p class="guide">La parola diventa richiamabile: nomi, beni, alleanze, debiti e promesse entrano nell’argilla.</p>
+          <ul>
+            <li>Scrivere dà forma al tempo</li>
+<li>Archiviare costruisce memoria governabile</li>
+<li>Sigillare lega un gesto a un’autorità</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Amarna_Letter_EA_19.jpg?width=1300" alt="Corrispondenza di Amarna, XIV secolo a.C.: diplomazia internazionale in accadico cuneiforme.">
+          <figcaption>Corrispondenza di Amarna, XIV secolo a.C.: diplomazia internazionale in accadico cuneiforme.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="4">
+        <div class="slide-card">
+          <p class="kicker">2. Porta</p>
+          <h2>Il corpo davanti al potere</h2>
+          <p class="guide">Una porta monumentale non si guarda soltanto: si attraversa.</p>
+          <ul>
+            <li>Rallenta il passo</li>
+<li>Fa alzare lo sguardo</li>
+<li>Trasforma l’ingresso in esperienza dell’autorità</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Lion_Gate,_Hattusa_01.jpg?width=1300" alt="Porta dei Leoni di Hattuša: ingresso, animale, pietra e città costruiscono una regia del potere.">
+          <figcaption>Porta dei Leoni di Hattuša: ingresso, animale, pietra e città costruiscono una regia del potere.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="5">
+        <div class="slide-card">
+          <p class="kicker">Impero</p>
+          <h2>Colore, rilievo, processione</h2>
+          <p class="guide">Babilonia mostra un potere che agisce attraverso architettura, animali simbolici e colore.</p>
+          <ul>
+            <li>Il blu invetriato rende visibile la città sacra</li>
+<li>Gli animali marcano la via processionale</li>
+<li>La scala architettonica coinvolge il corpo</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/The_Ishtar_Gate_of_Babylon_at_the_Pergamon_Museum,_Berlin,_Germany._From_Iraq,_6th_century_BCE.jpg?width=1300" alt="Porta di Ištar, Babilonia: ingresso cerimoniale, mattoni invetriati e animali divini.">
+          <figcaption>Porta di Ištar, Babilonia: ingresso cerimoniale, mattoni invetriati e animali divini.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="6">
+        <div class="slide-card">
+          <p class="kicker">3. Porto</p>
+          <h2>Le forme viaggiano</h2>
+          <p class="guide">Nel porto merci, immagini, divinità e segni cambiano lingua, supporto e funzione.</p>
+          <ul>
+            <li>Byblos collega Egitto, Levante e Mediterraneo</li>
+<li>L’alfabeto diventa forma leggera e mobile</li>
+<li>Naukratis trasforma il Delta in officina di scambio</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Byblos_Lebanon.jpg?width=1300" alt="Byblos: costa, porto, iscrizioni e memoria dell’alfabeto fenicio.">
+          <figcaption>Byblos: costa, porto, iscrizioni e memoria dell’alfabeto fenicio.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="7">
+        <div class="slide-card">
+          <p class="kicker">4. Nilo e Kush</p>
+          <h2>Ereditare e trasformare</h2>
+          <p class="guide">La regalità kushita rilegge il linguaggio faraonico da sud.</p>
+          <ul>
+            <li>Gebel Barkal concentra montagna, Amon e sovranità</li>
+<li>Le piramidi nubiane dichiarano continuità e autonomia</li>
+<li>Il Delta apre il Nilo al Mediterraneo</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gebel_Barkal_Amun_temple_(B500).JPG?width=1300" alt="Gebel Barkal, Sudan: montagna sacra e templi nel centro politico-religioso di Napata.">
+          <figcaption>Gebel Barkal, Sudan: montagna sacra e templi nel centro politico-religioso di Napata.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="8">
+        <div class="slide-card">
+          <p class="kicker">5. Egeo</p>
+          <h2>Palazzi e tombe</h2>
+          <p class="guide">Nel mondo egeo il potere si dispone tra cortili, magazzini, archivi, porte e sepolcri.</p>
+          <ul>
+            <li>Cnosso: movimento interno, colore e rito</li>
+<li>Pilo: palazzo e lineare B</li>
+<li>Micene: mura, porta, tomba e memoria dinastica</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Crete-Palace-Knossos.JPG?width=1300" alt="Palazzo di Cnosso: spazi palaziali, percorsi, colore e amministrazione.">
+          <figcaption>Palazzo di Cnosso: spazi palaziali, percorsi, colore e amministrazione.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="9">
+        <div class="slide-card">
+          <p class="kicker">Micene</p>
+          <h2>La memoria dei morti</h2>
+          <p class="guide">La tomba aristocratica organizza prestigio, corpo, oro, arma e durata.</p>
+          <ul>
+            <li>Il palazzo raccoglie il presente</li>
+<li>La tomba proietta il passato in durata</li>
+<li>La porta concentra protezione e dinastia</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Lion_Gate,_Mycenae,_201507.jpg?width=1300" alt="Porta dei Leoni di Micene: ingresso monumentale alla cittadella e immagine dinastica.">
+          <figcaption>Porta dei Leoni di Micene: ingresso monumentale alla cittadella e immagine dinastica.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="10">
+        <div class="slide-card">
+          <p class="kicker">6. Prima dei Misteri</p>
+          <h2>Interrogare i morti</h2>
+          <p class="guide">Il Necromanteion introduce la domanda sul contatto con chi ha attraversato la morte.</p>
+          <ul>
+            <li>Buio, attesa, discesa</li>
+<li>La morte come spazio interrogabile</li>
+<li>Un passaggio da approfondire a parte</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Acheron_River_01.jpg?width=1300" alt="Acheronte, Epiro: paesaggio legato alla tradizione dell’oracolo dei morti.">
+          <figcaption>Acheronte, Epiro: paesaggio legato alla tradizione dell’oracolo dei morti.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="11">
+        <div class="slide-card">
+          <p class="kicker">7. Misteri</p>
+          <h2>Vedere, tacere, ricordare</h2>
+          <p class="guide">A Eleusi il sapere passa attraverso rito, cammino, architettura, visione e silenzio.</p>
+          <ul>
+            <li>Il Telesterion dispone il corpo degli iniziati</li>
+<li>Dioniso coinvolge danza, maschera, notte</li>
+<li>Orfismo, Derveni e lamine portano il sapere nel sepolcro</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Eleusis_Telesterion.jpg?width=1300" alt="Telesterion di Eleusi: grande spazio collettivo legato ai Misteri di Demetra e Kore.">
+          <figcaption>Telesterion di Eleusi: grande spazio collettivo legato ai Misteri di Demetra e Kore.</figcaption>
+        </figure>
+      </section>
+      <section class="slide" data-slide="12">
+        <div class="slide-card">
+          <p class="kicker">Domande finali</p>
+          <h2>Per la discussione</h2>
+          <p class="guide">Usare gli oggetti come punti di partenza per parlare di pensiero, corpo e assoluto.</p>
+          <ul>
+            <li>Quando un oggetto diventa memoria del potere?</li>
+<li>Che cosa cambia quando il sapere viene scritto?</li>
+<li>Una porta può trasformare il corpo che la attraversa?</li>
+<li>Quale forma ti sembra più vicina all’arte contemporanea?</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Derveni_Papyrus.jpg?width=1300" alt="Papiro di Derveni: testo fragile, rito, interpretazione e sepolcro.">
+          <figcaption>Papiro di Derveni: testo fragile, rito, interpretazione e sepolcro.</figcaption>
+        </figure>
+      </section>
+  </main>
+  <div class="controls" aria-label="Controlli presentazione">
+    <button type="button" id="prev" aria-label="Slide precedente">‹</button>
+    <span class="counter" id="counter">1 / 12</span>
+    <button type="button" id="next" aria-label="Slide successiva">›</button>
+  </div>
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.getElementById('counter');
+    let current = Number(location.hash.replace('#slide-', '')) - 1;
+    if (!Number.isInteger(current) || current < 0 || current >= slides.length) current = 0;
+    function showSlide(index) {
+      slides[current].classList.remove('is-active');
+      current = (index + slides.length) % slides.length;
+      slides[current].classList.add('is-active');
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      history.replaceState(null, '', `#slide-${current + 1}`);
+    }
+    document.getElementById('prev').addEventListener('click', () => showSlide(current - 1));
+    document.getElementById('next').addEventListener('click', () => showSlide(current + 1));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') showSlide(current + 1);
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') showSlide(current - 1);
+      if (event.key === 'Home') showSlide(0);
+      if (event.key === 'End') showSlide(slides.length - 1);
+    });
+    showSlide(current);
+  </script>
+</body>
+</html>
