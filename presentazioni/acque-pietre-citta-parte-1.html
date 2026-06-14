@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentazione | Acque, pietre, città — Parte 1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07090c;
+      --panel: #10151c;
+      --panel-soft: rgba(16, 21, 28, 0.82);
+      --text: #f4efe5;
+      --muted: #c6bba8;
+      --accent: #d2a25c;
+      --accent-soft: rgba(210, 162, 92, 0.18);
+      --line: rgba(244, 239, 229, 0.16);
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.52);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(61, 127, 138, 0.22), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(178, 122, 75, 0.18), transparent 30rem),
+        linear-gradient(135deg, #07090c 0%, #11151d 48%, #06070a 100%);
+      color: var(--text);
+    }
+
+    a { color: inherit; }
+
+    .deck {
+      position: relative;
+      min-height: 100vh;
+      padding: clamp(1rem, 3vw, 2.5rem);
+    }
+
+    .slide {
+      position: absolute;
+      inset: clamp(1rem, 3vw, 2.5rem);
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+      gap: clamp(1.5rem, 4vw, 4.5rem);
+      align-items: center;
+      opacity: 0;
+      transform: translateX(2.5rem) scale(0.985);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+
+    .slide.is-active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .slide-card {
+      padding: clamp(1.6rem, 4vw, 4rem);
+      border: 1px solid var(--line);
+      border-radius: 2rem;
+      background: linear-gradient(180deg, var(--panel-soft), rgba(7, 9, 12, 0.86));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .kicker {
+      margin: 0 0 1rem;
+      color: var(--accent);
+      font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2 {
+      margin: 0;
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.35rem, 6.3vw, 6.5rem);
+      line-height: 0.94;
+      letter-spacing: -0.055em;
+    }
+
+    h2 { font-size: clamp(2.15rem, 5.6vw, 5.45rem); }
+
+    .guide {
+      max-width: 35rem;
+      margin: 1.5rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1.12rem, 2vw, 1.58rem);
+      line-height: 1.36;
+    }
+
+    ul {
+      margin: clamp(1.5rem, 3vw, 2.4rem) 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    li {
+      position: relative;
+      padding-left: 1.35rem;
+      color: #eadfce;
+      font-size: clamp(1.08rem, 2vw, 1.65rem);
+      line-height: 1.31;
+    }
+
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.75em;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 0.35rem var(--accent-soft);
+    }
+
+    figure {
+      position: relative;
+      margin: 0;
+      min-height: 72vh;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 2rem;
+      background: #050609;
+      box-shadow: var(--shadow);
+    }
+
+    figure img {
+      width: 100%;
+      height: 100%;
+      min-height: 72vh;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.92) contrast(1.05) brightness(0.82);
+    }
+
+    figcaption {
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      padding: 0.8rem 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: 0.95rem;
+      background: rgba(5, 6, 9, 0.80);
+      color: var(--muted);
+      font-size: clamp(0.72rem, 1vw, 0.88rem);
+      line-height: 1.38;
+      backdrop-filter: blur(10px);
+    }
+
+    .timeline-mini {
+      margin-top: 1.6rem;
+      display: grid;
+      gap: 0.55rem;
+      font-size: clamp(0.95rem, 1.35vw, 1.08rem);
+      color: var(--muted);
+    }
+
+    .timeline-mini span {
+      display: grid;
+      grid-template-columns: 8.8rem 1fr;
+      gap: 0.8rem;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: 0.8rem;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .timeline-mini strong { color: var(--accent); }
+
+    .controls {
+      position: fixed;
+      left: 50%;
+      bottom: 1.3rem;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      transform: translateX(-50%);
+      padding: 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7, 9, 12, 0.78);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    button, .back-link {
+      border: 1px solid rgba(210, 162, 92, 0.45);
+      border-radius: 999px;
+      background: rgba(210, 162, 92, 0.12);
+      color: var(--text);
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      font-size: 1.3rem;
+    }
+
+    button:hover, button:focus-visible, .back-link:hover, .back-link:focus-visible {
+      outline: none;
+      background: rgba(210, 162, 92, 0.24);
+    }
+
+    .counter {
+      min-width: 4.8rem;
+      color: var(--muted);
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+
+    .back-link {
+      position: fixed;
+      top: 1.2rem;
+      left: 1.2rem;
+      z-index: 11;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+    }
+
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+      .deck { min-height: auto; padding-bottom: 6rem; }
+      .slide {
+        position: static;
+        display: none;
+        grid-template-columns: 1fr;
+        min-height: calc(100vh - 7rem);
+      }
+      .slide.is-active { display: grid; }
+      figure, figure img { min-height: 42vh; }
+      figcaption { position: static; border-radius: 0; }
+      h1, h2 { max-width: 100%; }
+      .timeline-mini span { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      @page { size: 16cm 9cm; margin: 0; }
+      body { overflow: visible; background: #fff; color: #111; }
+      .back-link, .controls { display: none; }
+      .deck { padding: 0; }
+      .slide, .slide.is-active {
+        position: relative;
+        inset: auto;
+        display: grid;
+        page-break-after: always;
+        width: 16cm;
+        height: 9cm;
+        padding: 0.7cm;
+        opacity: 1;
+        transform: none;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 0.5cm;
+        background: #11151d;
+        color: #f4efe5;
+      }
+      .slide-card { padding: 0.55cm; box-shadow: none; }
+      h1, h2 { font-size: 0.72cm; }
+      .guide, li { font-size: 0.28cm; }
+      .timeline-mini { font-size: 0.18cm; gap: 0.08cm; }
+      .timeline-mini span { grid-template-columns: 1.9cm 1fr; padding: 0.08cm; }
+      figure { min-height: 0; height: 7.6cm; box-shadow: none; }
+      figure img { min-height: 0; height: 7.6cm; }
+      figcaption {
+        display: block;
+        position: absolute;
+        left: 0.25cm;
+        right: 0.25cm;
+        bottom: 0.25cm;
+        font-size: 0.18cm;
+        padding: 0.16cm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="../acque-pietre-citta.html">← Torna all’articolo</a>
+
+  <main class="deck" aria-live="polite">
+    <section class="slide is-active" aria-label="Slide 1">
+      <div class="slide-card">
+        <p class="kicker">Sahara, Nilo, Nubia, Kush, Egitto, Mesopotamia, Levante e Anatolia</p>
+        <h1>Acque, pietre, città</h1>
+        <p class="guide">Come diventano visibili l’ordine, il potere e il sacro quando una civiltà costruisce il proprio mondo?</p>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gebel_Barkal_Amun_temple_(B500).JPG?width=1100" alt="Tempio di Amon ai piedi del Jebel Barkal, in Sudan.">
+        <figcaption>Gebel Barkal, Sudan: tempio di Amon ai piedi della montagna sacra di Napata. Paesaggio, architettura, regalità e culto si concentrano nello stesso luogo.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 2">
+      <div class="slide-card">
+        <p class="kicker">Idea guida</p>
+        <h2>Paesaggi che pensano</h2>
+        <ul>
+          <li>Deserto, fiume, città, porta, archivio.</li>
+          <li>Ogni ambiente produce forme diverse.</li>
+          <li>L’arte mostra come una civiltà ordina il mondo.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Byblos(js)_6.jpg?width=900" alt="Area archeologica di Byblos, in Libano.">
+        <figcaption>Byblos, Libano: porto, tell e santuario in una città di passaggio fra Levante, Egitto e Mediterraneo. La forma dominante è la connessione.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 3">
+      <div class="slide-card">
+        <p class="kicker">Metodo</p>
+        <h2>Date come tracce</h2>
+        <ul>
+          <li>Le date orientano, non raccontano un progresso lineare.</li>
+          <li>Ogni area ha tempi, materiali e risposte proprie.</li>
+          <li>Il limite documentario non coincide con l’inizio del reale.</li>
+        </ul>
+        <div class="timeline-mini" aria-label="Schema sintetico delle aree">
+          <span><strong>8000–3000 a.C.</strong> Sahara umido, laghi, immagini rupestri</span>
+          <span><strong>III millennio a.C.</strong> Nubia, Egitto, città, necropoli, piramidi</span>
+          <span><strong>IV–II millennio a.C.</strong> Mesopotamia, Levante, Anatolia: archivi, porti, porte</span>
+        </div>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Cuneiform_tablet-_caravan_account_MET_DP-13441-004.jpg?width=900" alt="Tavoletta cuneiforme con conto di carovana.">
+        <figcaption>Tavoletta cuneiforme con conto di carovana: una data, un segno, una quantità e un archivio rendono visibile un frammento di mondo amministrato.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 4">
+      <div class="slide-card">
+        <p class="kicker">Sahara</p>
+        <h2>Acqua, animali, roccia</h2>
+        <ul>
+          <li>Il Sahara antico conserva tracce di paesaggi umidi.</li>
+          <li>Animali e figure mostrano un mondo vissuto.</li>
+          <li>La roccia diventa archivio visivo del mutamento.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great_god_of_Sefar.jpg?width=900" alt="Grande figura rupestre del sito di Sefar nel Tassili n'Ajjer, Algeria.">
+        <figcaption>Tassili n’Ajjer, Algeria: grande figura rupestre del sito di Sefar. Il paesaggio oggi desertico custodisce corpi, segni e immagini di un diverso modo di abitare il reale.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 5">
+      <div class="slide-card">
+        <p class="kicker">Nilo</p>
+        <h2>Il fiume dà durata</h2>
+        <ul>
+          <li>L’acqua organizza ritmo, fertilità e orientamento.</li>
+          <li>La valle diventa linea dei vivi e dei morti.</li>
+          <li>La forma artistica stabilizza ciò che scorre.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Pyramids_Bar_North.jpg?width=900" alt="Piramidi kushite presso Jebel Barkal, Sudan.">
+        <figcaption>Piramidi kushite presso Jebel Barkal, Sudan. Nel mondo nilotico l’architettura funeraria lega fiume, memoria, regalità e durata oltre la morte.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 6">
+      <div class="slide-card">
+        <p class="kicker">Nubia e Kush</p>
+        <h2>Regalità autonoma</h2>
+        <ul>
+          <li>Kerma non è una periferia dell’Egitto.</li>
+          <li>Mattoni crudi, necropoli e città costruiscono potere.</li>
+          <li>Il paesaggio diventa centro politico e sacro.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Western_Deffufa_-_Kerma.jpg?width=900" alt="Western Deffufa, grande struttura in mattoni crudi dell'antica Kerma.">
+        <figcaption>Western Deffufa, Kerma, Sudan: architettura monumentale in mattoni crudi. La massa costruita mostra una forma nubiana autonoma di città, culto e potere.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 7">
+      <div class="slide-card">
+        <p class="kicker">Egitto e Kush</p>
+        <h2>Il potere cerca eternità</h2>
+        <ul>
+          <li>La piramide concentra geometria, corpo e cielo.</li>
+          <li>La necropoli organizza la memoria dei morti.</li>
+          <li>Una forma può rendere visibile un ordine cosmico.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gebel_Barkal_Amun_temple_(B500).JPG?width=1100" alt="Tempio di Amon ai piedi del Jebel Barkal, in Sudan.">
+        <figcaption>Gebel Barkal, Sudan: la montagna sacra e il tempio mostrano come paesaggio, sovranità e culto possano diventare un’unica immagine di ordine.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 8">
+      <div class="slide-card">
+        <p class="kicker">Mesopotamia</p>
+        <h2>Città, tempio, archivio</h2>
+        <ul>
+          <li>La città organizza lavoro, culto e potere.</li>
+          <li>La scrittura trattiene quantità, nomi, offerte.</li>
+          <li>L’argilla incisa diventa forma del governo.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Cuneiform_tablet-_caravan_account_MET_DP-13441-004.jpg?width=900" alt="Tavoletta cuneiforme con conto di carovana.">
+        <figcaption>Tavoletta cuneiforme con conto di carovana, Metropolitan Museum of Art. Merci, viaggi e rapporti economici fissati nell’argilla mostrano il potere della registrazione.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 9">
+      <div class="slide-card">
+        <p class="kicker">Immagine politica</p>
+        <h2>Registri e gerarchie</h2>
+        <ul>
+          <li>Le figure sono ordinate per fasce.</li>
+          <li>La composizione insegna chi domina e chi obbedisce.</li>
+          <li>Guerra, dono e banchetto diventano racconto del potere.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Standard_of_Ur_-_War.jpg?width=900" alt="Pannello della guerra dello Standard of Ur.">
+        <figcaption><em>Standard of Ur</em>, pannello della guerra, Mesopotamia, circa 2600 a.C. La composizione a registri trasforma il potere in ordine visivo.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 10">
+      <div class="slide-card">
+        <p class="kicker">Levante</p>
+        <h2>Porti e passaggi</h2>
+        <ul>
+          <li>Il porto traduce merci, immagini e culti.</li>
+          <li>Il tell accumula strati di tempo.</li>
+          <li>Le rotte trasformano le forme che viaggiano.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Tell_Megiddo_-_4.2006_-36.JPG?width=900" alt="Area archeologica del tell di Megiddo.">
+        <figcaption>Tell Megiddo: città stratificata su un nodo di passaggio, fra rotte, acqua e controllo politico. La posizione geografica diventa forma di potere.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 11">
+      <div class="slide-card">
+        <p class="kicker">Anatolia</p>
+        <h2>Porte, mura, roccia</h2>
+        <ul>
+          <li>Entrare in città diventa esperienza di autorità.</li>
+          <li>La roccia scolpita trattiene presenze divine.</li>
+          <li>La capitale fortificata rende visibile l’ordine politico.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Lion_Gate,_Hattusa_13_(cropped).jpg?width=900" alt="Porta dei Leoni di Hattusha, capitale ittita.">
+        <figcaption>Hattusha, Turchia: Porta dei Leoni della capitale ittita. L’ingresso monumentale non apre solo uno spazio: prepara il corpo a percepire autorità e protezione.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" aria-label="Slide 12">
+      <div class="slide-card">
+        <p class="kicker">Discussione</p>
+        <h2>Domande per la classe</h2>
+        <ul>
+          <li>Un paesaggio può cambiare il modo in cui una civiltà pensa?</li>
+          <li>Perché il potere ha bisogno di immagini, porte, templi e archivi?</li>
+          <li>Quando una città diventa immagine del mondo?</li>
+          <li>Che cosa cambia quando una forma viaggia da una cultura all’altra?</li>
+          <li>Quale oggetto della lezione mostra meglio il rapporto fra arte e assoluto?</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Yazilikaya_B_12erGruppe.jpg?width=900" alt="Rilievo rupestre con dodici figure divine a Yazılıkaya.">
+        <figcaption>Yazılıkaya, santuario rupestre vicino a Hattusha: processione divina scolpita nella roccia. La materia naturale diventa supporto di una presenza ordinata.</figcaption>
+      </figure>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Controlli presentazione">
+    <button type="button" id="prev" aria-label="Slide precedente">←</button>
+    <span class="counter" id="counter">1 / 12</span>
+    <button type="button" id="next" aria-label="Slide successiva">→</button>
+  </nav>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.querySelector('#counter');
+    const prev = document.querySelector('#prev');
+    const next = document.querySelector('#next');
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('is-active', slideIndex === current);
+      });
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      const hash = `slide-${current + 1}`;
+      if (location.hash !== `#${hash}`) {
+        history.replaceState(null, '', `#${hash}`);
+      }
+    }
+
+    function fromHash() {
+      const match = location.hash.match(/slide-(\d+)/);
+      if (match) showSlide(Number(match[1]) - 1);
+    }
+
+    prev.addEventListener('click', () => showSlide(current - 1));
+    next.addEventListener('click', () => showSlide(current + 1));
+    document.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+      if (event.key === 'Home') showSlide(0);
+      if (event.key === 'End') showSlide(slides.length - 1);
+    });
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+    showSlide(current);
+  </script>
+</body>
+</html>
