@@ -16,13 +16,15 @@ import shutil
 import subprocess
 import sys
 import textwrap
+import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterable
+
 import requests
 from bs4 import BeautifulSoup, Tag
 from dotenv import load_dotenv
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTICLE = ROOT / "quando-l-arte-era-una-soglia.html"
@@ -41,6 +43,15 @@ EXCLUDED_H3_PREFIXES = (
     "Scheda di metodo",
 )
 DEFAULT_TITLE = "Quando l’arte era una soglia"
+
+IMAGE_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (compatible; FilosofiaPerLiceiArtisticiVideo/1.1; "
+        "+https://mkldmt-web.github.io/sito-didattico-filosofia/)"
+    ),
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    "Accept-Language": "it-IT,it;q=0.9,en;q=0.8",
+}
 
 
 @dataclass
@@ -174,20 +185,87 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
 
 
+def fallback_image_text(image: ImageRef) -> str:
+    text = image.alt or image.caption or "Immagine dell’articolo non disponibile durante la generazione automatica."
+    text = re.sub(r"Fonte:.*$", "", text).strip()
+    return text[:420]
+
+
+def create_fallback_image(image: ImageRef, jpg: Path, resolution: tuple[int, int]) -> Path:
+    width, height = resolution
+    canvas = Image.new("RGB", (width, height), (24, 22, 20))
+    draw = ImageDraw.Draw(canvas)
+
+    try:
+        title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", max(34, width // 32))
+        body_font = ImageFont.truetype("DejaVuSans.ttf", max(24, width // 48))
+    except OSError:
+        title_font = ImageFont.load_default()
+        body_font = ImageFont.load_default()
+
+    margin = int(width * 0.08)
+    title = DEFAULT_TITLE
+    subtitle = fallback_image_text(image)
+
+    y = int(height * 0.28)
+    draw.text((margin, y), title, fill=(238, 232, 218), font=title_font)
+    y += int(height * 0.09)
+    for line in textwrap.wrap(subtitle, width=58):
+        draw.text((margin, y), line, fill=(206, 196, 176), font=body_font)
+        y += int(height * 0.055)
+    draw.text(
+        (margin, height - int(height * 0.12)),
+        "Sorgente visiva non scaricabile dal runner: scheda sostitutiva generata automaticamente.",
+        fill=(150, 140, 125),
+        font=body_font,
+    )
+    canvas.save(jpg, quality=92, optimize=True)
+    print(f"Avviso: creata immagine sostitutiva per {image.src}")
+    image.local_path = str(jpg)
+    return jpg
+
+
+def download_with_retries(url: str, raw: Path) -> None:
+    last_error: Exception | None = None
+    for attempt in range(1, 6):
+        try:
+            response = requests.get(url, timeout=90, headers=IMAGE_HEADERS)
+            if response.status_code == 429:
+                wait = 8 * attempt
+                print(f"Wikimedia/rate limit 429. Attendo {wait}s e riprovo ({attempt}/5): {url}")
+                time.sleep(wait)
+                continue
+            response.raise_for_status()
+            content_type = response.headers.get("Content-Type", "")
+            if "image" not in content_type and not url.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".gif")):
+                raise RuntimeError(f"Risposta non immagine: {content_type}")
+            raw.write_bytes(response.content)
+            return
+        except Exception as exc:  # noqa: BLE001 - vogliamo fallback robusto in CI
+            last_error = exc
+            wait = 3 * attempt
+            print(f"Avviso: download immagine fallito ({attempt}/5): {exc}. Riprovo tra {wait}s.")
+            time.sleep(wait)
+    raise RuntimeError(f"Download immagine fallito dopo vari tentativi: {last_error}")
+
+
 def download_image(image: ImageRef, dest_dir: Path, resolution: tuple[int, int]) -> Path:
     digest = hashlib.sha256(image.src.encode("utf-8")).hexdigest()[:16]
     raw = dest_dir / f"{digest}.img"
     jpg = dest_dir / f"{digest}.jpg"
     if not jpg.exists():
-        response = requests.get(image.src, timeout=60, headers={"User-Agent": "video-pipeline/1.0"})
-        response.raise_for_status()
-        raw.write_bytes(response.content)
-        with Image.open(raw) as im:
-            im = ImageOps.exif_transpose(im).convert("RGB")
-            # Normalizza in 16:9 con crop centrale: ffmpeg applicherà poi il Ken Burns.
-            im = ImageOps.fit(im, resolution, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
-            im.save(jpg, quality=92, optimize=True)
-        raw.unlink(missing_ok=True)
+        try:
+            download_with_retries(image.src, raw)
+            with Image.open(raw) as im:
+                im = ImageOps.exif_transpose(im).convert("RGB")
+                # Normalizza in 16:9 con crop centrale: ffmpeg applicherà poi il Ken Burns.
+                im = ImageOps.fit(im, resolution, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+                im.save(jpg, quality=92, optimize=True)
+            raw.unlink(missing_ok=True)
+        except Exception as exc:  # noqa: BLE001
+            print(f"Avviso: uso immagine sostitutiva per errore download: {exc}")
+            raw.unlink(missing_ok=True)
+            create_fallback_image(image, jpg, resolution)
     image.local_path = str(jpg)
     return jpg
 
