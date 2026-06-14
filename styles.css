@@ -497,7 +497,7 @@ p {
   }
 }
 
-.audiovisual-reader {
+.video-section {
   margin: 0 0 2rem;
   padding: 2rem;
   background: linear-gradient(135deg, #fffaf2 0%, #f1e2cf 100%);
@@ -506,101 +506,26 @@ p {
   box-shadow: var(--shadow-soft);
 }
 
-.audiovisual-reader__intro {
-  max-width: 760px;
-}
-
-.audiovisual-reader__intro h2 {
+.video-section h2 {
   margin-bottom: 0.75rem;
 }
 
-.audiovisual-reader__stage {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
-  gap: 1.5rem;
-  align-items: stretch;
-  margin: 1.5rem 0;
+.video-section p {
+  max-width: 760px;
 }
 
-.audiovisual-reader__figure {
-  display: flex;
-  min-height: 100%;
-  flex-direction: column;
-  margin: 0;
+.video-section video {
+  display: block;
+  margin-top: 1.5rem;
   overflow: hidden;
-  background: #fffdf8;
+  background: #1d1712;
   border: 1px solid var(--color-border);
   border-radius: 20px;
-}
-
-.audiovisual-reader__figure img {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  background: #eee5d8;
-}
-
-.audiovisual-reader__figure figcaption {
-  padding: 0.85rem 1rem 1rem;
-  color: var(--color-muted);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-.audiovisual-reader__text {
-  min-height: 100%;
-  margin: 0;
-  padding: 1.25rem;
-  color: var(--color-primary);
-  background: rgba(255, 253, 248, 0.78);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  font-size: 1.05rem;
-}
-
-.audiovisual-reader__controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  align-items: center;
-}
-
-.audiovisual-reader__controls .button {
-  margin-top: 0;
-  border: 0;
-  cursor: pointer;
-}
-
-.audiovisual-reader__controls .button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.button-secondary {
-  color: var(--color-primary);
-  background: #fffdf8;
-  border: 1px solid var(--color-border);
-}
-
-.button-secondary:hover,
-.button-secondary:focus-visible {
-  color: #fffaf2;
-  background: var(--color-accent);
-}
-
-.audiovisual-reader__status {
-  color: var(--color-muted);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.95rem;
+  box-shadow: var(--shadow-soft);
 }
 
 @media (max-width: 820px) {
-  .audiovisual-reader {
+  .video-section {
     padding: 1.5rem;
-  }
-
-  .audiovisual-reader__stage {
-    grid-template-columns: 1fr;
   }
 }
