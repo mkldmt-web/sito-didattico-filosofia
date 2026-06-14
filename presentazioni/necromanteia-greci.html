@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentazione | Necromanteia greci</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061111;
+      --panel: #0d1d1d;
+      --panel-soft: rgba(13, 29, 29, 0.86);
+      --text: #f4efe5;
+      --muted: #c5bbb0;
+      --accent: #67b0a9;
+      --accent-soft: rgba(103, 176, 169, 0.18);
+      --line: rgba(244, 239, 229, 0.16);
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(103, 176, 169, 0.24), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(109, 77, 57, 0.28), transparent 30rem),
+        linear-gradient(135deg, #061111 0%, #102022 48%, #050707 100%);
+      color: var(--text);
+    }
+    a { color: inherit; }
+    .deck { position: relative; min-height: 100vh; padding: clamp(1rem, 3vw, 2.5rem); }
+    .slide {
+      position: absolute;
+      inset: clamp(1rem, 3vw, 2.5rem);
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+      gap: clamp(1.5rem, 4vw, 4.5rem);
+      align-items: center;
+      opacity: 0;
+      transform: translateX(2.5rem) scale(0.985);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+    .slide.is-active { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }
+    .slide-card {
+      padding: clamp(1.6rem, 4vw, 4rem);
+      border: 1px solid var(--line);
+      border-radius: 2rem;
+      background: linear-gradient(180deg, var(--panel-soft), rgba(6, 17, 17, 0.88));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .kicker {
+      margin: 0 0 1rem;
+      color: var(--accent);
+      font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    h1, h2 {
+      margin: 0;
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.35rem, 6.3vw, 6.5rem);
+      line-height: 0.94;
+      letter-spacing: -0.055em;
+    }
+    h2 { font-size: clamp(2.15rem, 5.6vw, 5.45rem); }
+    .guide {
+      max-width: 35rem;
+      margin: 1.5rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1.12rem, 2vw, 1.58rem);
+      line-height: 1.36;
+    }
+    ul { margin: clamp(1.5rem, 3vw, 2.4rem) 0 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; }
+    li { position: relative; padding-left: 1.35rem; color: #eadfce; font-size: clamp(1.08rem, 2vw, 1.65rem); line-height: 1.31; }
+    li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0.35rem var(--accent-soft); }
+    figure { position: relative; margin: 0; min-height: 72vh; overflow: hidden; border: 1px solid var(--line); border-radius: 2rem; background: #050609; box-shadow: var(--shadow); }
+    figure img { width: 100%; height: 100%; min-height: 72vh; object-fit: cover; display: block; filter: saturate(0.9) contrast(1.08) brightness(0.82); }
+    figcaption { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; padding: 0.8rem 0.95rem; border: 1px solid var(--line); border-radius: 0.95rem; background: rgba(5, 6, 9, 0.82); color: var(--muted); font-size: clamp(0.72rem, 1vw, 0.88rem); line-height: 1.38; backdrop-filter: blur(10px); }
+    .controls { position: fixed; left: 50%; bottom: 1.3rem; z-index: 10; display: flex; align-items: center; gap: 0.85rem; transform: translateX(-50%); padding: 0.75rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(6, 17, 17, 0.78); box-shadow: var(--shadow); backdrop-filter: blur(14px); }
+    button, .back-link { border: 1px solid rgba(103, 176, 169, 0.55); border-radius: 999px; background: rgba(103, 176, 169, 0.14); color: var(--text); font: inherit; font-weight: 750; cursor: pointer; }
+    button { min-width: 2.75rem; min-height: 2.75rem; font-size: 1.3rem; }
+    button:hover, button:focus-visible, .back-link:hover, .back-link:focus-visible { outline: none; background: rgba(103, 176, 169, 0.25); }
+    .counter { min-width: 4.8rem; color: var(--muted); font-weight: 800; text-align: center; letter-spacing: 0.08em; }
+    .back-link { position: fixed; top: 1.2rem; left: 1.2rem; z-index: 11; padding: 0.75rem 1rem; text-decoration: none; }
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+      .deck { min-height: auto; padding-bottom: 6rem; }
+      .slide { position: static; display: none; grid-template-columns: 1fr; min-height: calc(100vh - 7rem); }
+      .slide.is-active { display: grid; }
+      figure, figure img { min-height: 42vh; }
+      figcaption { position: static; border-radius: 0; }
+      h1, h2 { max-width: 100%; }
+    }
+    @media print {
+      @page { size: 16cm 9cm; margin: 0; }
+      body { overflow: visible; background: #fff; color: #111; }
+      .back-link, .controls { display: none; }
+      .deck { padding: 0; }
+      .slide, .slide.is-active { position: relative; inset: auto; display: grid; min-height: 100vh; page-break-after: always; opacity: 1; transform: none; color: #111; background: #fff; }
+      .slide-card, figure { box-shadow: none; border-color: #ddd; background: #fff; }
+      .kicker, li::before { color: #2f5d61; }
+      .guide, li, figcaption { color: #333; }
+      figure img { filter: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="../necromanteia-greci.html">← Approfondimento</a>
+  <main class="deck" aria-live="polite">
+    <section class="slide is-active" data-slide="1">
+      <div class="slide-card">
+        <p class="kicker">Approfondimento tecnico</p>
+        <h1>Necromanteia greci</h1>
+        <p class="guide">Oracoli dei morti, nekyia, katabasis e paesaggi inferi nel mondo greco.</p>
+        <ul>
+          <li>Non un racconto unico, ma una costellazione di luoghi e tradizioni</li>
+          <li>Fonti antiche, archeologia e interpretazioni moderne vanno separati</li>
+          <li>Il tema centrale è il rapporto tra vivi, morti e sapere</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/DSCF6210_%CE%9D%CE%B5%CE%BA%CF%81%CE%BF%CE%BC%CE%B1%CE%BD%CF%84%CE%B5%CE%B9%CE%BF_%CF%84%CE%BF%CF%85_%CE%91%CF%87%CE%B5%CF%81%CE%BF%CE%BD%CF%84%CE%B1.jpg?width=1300" alt="Complesso di Mesopotamos tradizionalmente identificato con il Necromanteion dell’Acheronte">
+        <figcaption>Mesopotamos, complesso ellenistico tradizionalmente identificato con il Necromanteion dell’Acheronte. Il valore didattico sta proprio nella distinzione tra tradizione antica e identificazione archeologica discussa.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="2">
+      <div class="slide-card">
+        <p class="kicker">Lessico</p>
+        <h2>Tre parole da distinguere</h2>
+        <p class="guide">Il primo passo è non sovrapporre luogo, rito e viaggio oltremondano.</p>
+        <ul>
+          <li><em>Necromanteion</em>: luogo/oracolo dei morti</li>
+          <li><em>Nekyia</em>: rito di evocazione e interrogazione</li>
+          <li><em>Katabasis</em>: discesa nell’aldilà</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Labyrinth_halls_at_Nekromanteion.jpg?width=1300" alt="Corridoi del complesso di Mesopotamos">
+        <figcaption>Corridoi del complesso di Mesopotamos. La struttura materiale va letta insieme alle fonti, non come prova automatica di una funzione rituale.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="3">
+      <div class="slide-card">
+        <p class="kicker">Metodo</p>
+        <h2>Quattro livelli</h2>
+        <p class="guide">Ogni affermazione va collocata nel proprio livello di evidenza.</p>
+        <ul>
+          <li>Dato storico-archeologico</li>
+          <li>Testimonianza letteraria antica</li>
+          <li>Interpretazione storico-religiosa moderna</li>
+          <li>Mito, leggenda o ipotesi simbolica</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/DSCF6210_%CE%9D%CE%B5%CE%BA%CF%81%CE%BF%CE%BC%CE%B1%CE%BD%CF%84%CE%B5%CE%B9%CE%BF_%CF%84%CE%BF%CF%85_%CE%91%CF%87%CE%B5%CF%81%CE%BF%CE%BD%CF%84%CE%B1.jpg?width=1300" alt="Veduta del complesso di Mesopotamos">
+        <figcaption>Un edificio prova l’esistenza di una struttura; le fonti provano una tradizione. La funzione rituale nasce dal confronto fra dati, testi e interpretazioni.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="4">
+      <div class="slide-card">
+        <p class="kicker">Acheronte</p>
+        <h2>Tradizione forte, sito discusso</h2>
+        <p class="guide">Il caso di Mesopotamos è il migliore per insegnare il metodo.</p>
+        <ul>
+          <li>La Thesprotia acherontica è una tradizione antica</li>
+          <li>Dakaris identificò il complesso come Necromanteion</li>
+          <li>Wiseman e Baatz hanno proposto una lettura più cauta: struttura fortificata o agricolo-militare</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Labyrinth_halls_at_Nekromanteion.jpg?width=1300" alt="Halls leading to the central room del complesso di Mesopotamos">
+        <figcaption>Mesopotamos: il punto non è negare la tradizione infera, ma distinguere il paesaggio mitico dalla funzione precisa dell’edificio visibile.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="5">
+      <div class="slide-card">
+        <p class="kicker">Odissea XI</p>
+        <h2>La Nekyia</h2>
+        <p class="guide">Il modello più netto resta letterario: fossa, libagioni, sangue, ombre, Tiresia.</p>
+        <ul>
+          <li>Odisseo non visita fisicamente l’Ade</li>
+          <li>Richiama i morti attraverso un rito</li>
+          <li>Il sangue permette alle ombre di parlare</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orphic_Gold_Tablet_(Petelia_-_British_Museum,_London).jpg?width=1300" alt="Lamina aurea di Petelia">
+        <figcaption>La lamina aurea di Petelia appartiene a un altro piano: non evoca i morti, ma orienta l’anima nel viaggio post mortem attraverso memoria e formula.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="6">
+      <div class="slide-card">
+        <p class="kicker">Porte dell’Ade</p>
+        <h2>Una geografia policentrica</h2>
+        <p class="guide">Il mondo greco conosce più luoghi inferi: non un solo centro, ma molte localizzazioni.</p>
+        <ul>
+          <li>Acheronte e Aornon in Thesprotia</li>
+          <li>Tainaron nel Mani</li>
+          <li>Heracleia Pontike e la caverna Acherusia</li>
+          <li>Cuma e Averno come grande confronto italico-romano</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Labyrinth_halls_at_Nekromanteion.jpg?width=1300" alt="Corridoi come immagine di una topografia infera">
+        <figcaption>Grotte, fiumi, laghi scuri e promontori costruiscono topografie del contatto con l’invisibile.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="7">
+      <div class="slide-card">
+        <p class="kicker">Comparandum</p>
+        <h2>Trophonios</h2>
+        <p class="guide">Non è necromanzia in senso stretto, ma è il parallelo ctonio più utile.</p>
+        <ul>
+          <li>Preparazione rituale</li>
+          <li>Discesa sotterranea</li>
+          <li>Paura, memoria e oblio</li>
+          <li>Ritorno alla parola oracolare</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Derveni-papyrus.jpg?width=1300" alt="Papiro di Derveni">
+        <figcaption>Il papiro di Derveni mostra un’altra forma di sapere ctonio: testo, rito funerario, interpretazione e memoria.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="8">
+      <div class="slide-card">
+        <p class="kicker">Derveni e Petelia</p>
+        <h2>Dal morto consultato all’anima guidata</h2>
+        <p class="guide">La scrittura può servire a interrogare, interpretare o accompagnare.</p>
+        <ul>
+          <li>Necromanzia: cercare una parola dai morti</li>
+          <li>Derveni: interpretare un testo sacro in contesto funerario</li>
+          <li>Petelia: guidare l’anima attraverso memoria e riconoscimento</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Crat%C3%A8re_de_Derveni_0001.jpg?width=1300" alt="Cratere di Derveni">
+        <figcaption>Cratere di Derveni: vaso bronzeo funerario con immaginario dionisiaco. Sepoltura, rito e visione dell’aldilà si toccano.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="9">
+      <div class="slide-card">
+        <p class="kicker">Per la classe</p>
+        <h2>Cosa ricordare</h2>
+        <p class="guide">Questo approfondimento non cerca una mappa unica dell’Ade, ma un metodo di lettura.</p>
+        <ul>
+          <li>Un mito può conservare memoria di luoghi reali</li>
+          <li>Un edificio non dimostra da solo un rito</li>
+          <li>La morte diventa conoscenza attraverso paesaggi, gesti e parole</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orphic_Gold_Tablet_(Petelia_-_British_Museum,_London).jpg?width=1300" alt="Lamina aurea orfica di Petelia">
+        <figcaption>Un piccolo oggetto può contenere una visione intera del destino dell’anima: fonte da evitare, fonte da cercare, parola da ricordare.</figcaption>
+      </figure>
+    </section>
+
+    <section class="slide" data-slide="10">
+      <div class="slide-card">
+        <p class="kicker">Discussione</p>
+        <h2>Domande finali</h2>
+        <p class="guide">Per aprire il confronto orale.</p>
+        <ul>
+          <li>Perché gli antichi collocavano l’accesso ai morti in grotte, fiumi o laghi?</li>
+          <li>Che differenza c’è tra evocare un morto e guidare l’anima dopo la morte?</li>
+          <li>Quando un luogo archeologico può essere collegato con sicurezza a un mito?</li>
+          <li>Perché memoria e oblio diventano parole decisive?</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Derveni-papyrus.jpg?width=1300" alt="Papiro di Derveni come immagine conclusiva">
+        <figcaption>Testo, rito, interpretazione e morte: il sapere antico passa anche attraverso supporti fragili, anneriti, sepolti, ritrovati.</figcaption>
+      </figure>
+    </section>
+  </main>
+  <div class="controls" aria-label="Controlli presentazione">
+    <button type="button" id="prev" aria-label="Slide precedente">‹</button>
+    <span class="counter"><span id="current">1</span>/<span id="total">10</span></span>
+    <button type="button" id="next" aria-label="Slide successiva">›</button>
+  </div>
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const current = document.getElementById('current');
+    const total = document.getElementById('total');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    total.textContent = slides.length;
+    let index = Math.max(0, Math.min(slides.length - 1, Number(location.hash.replace('#slide-', '')) - 1 || 0));
+    function showSlide(i) {
+      index = (i + slides.length) % slides.length;
+      slides.forEach((slide, n) => slide.classList.toggle('is-active', n === index));
+      current.textContent = index + 1;
+      history.replaceState(null, '', '#slide-' + (index + 1));
+    }
+    prev.addEventListener('click', () => showSlide(index - 1));
+    next.addEventListener('click', () => showSlide(index + 1));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === ' ') showSlide(index + 1);
+      if (event.key === 'ArrowLeft') showSlide(index - 1);
+    });
+    showSlide(index);
+  </script>
+</body>
+</html>
