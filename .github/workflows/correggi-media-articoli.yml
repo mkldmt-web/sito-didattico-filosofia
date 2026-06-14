@@ -1,0 +1,331 @@
+name: Correggi media articoli 2-4
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/correggi-media-articoli.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-media:
+    if: ${{ !contains(github.event.head_commit.message, '[media-fix-bot]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Correggi immagini e riferimenti
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import quote
+          import html
+          import json
+          import re
+          import sys
+          import time
+          import urllib.request
+          import urllib.parse
+
+          TARGETS = [
+              Path('acque-pietre-citta.html'),
+              Path('tavolette-porte-misteri.html'),
+              Path('necromanteia-greci.html'),
+          ]
+
+          UA = {'User-Agent': 'mkldmt-web-media-check/1.0 (educational site maintenance)'}
+          cache = {}
+
+          forced_queries = {
+              'Amarna_Letter_EA_19.jpg': 'Amarna Letter EA 19 cuneiform tablet',
+              'Cuneiform_tablet_with_a_seal_impression._Old_Babylonian_period._From_Mesopotamia,_Iraq._The_British_Museum.jpg': 'cuneiform tablet seal impression British Museum Old Babylonian',
+              'Byblos_Lebanon.jpg': 'Byblos archaeological site Lebanon',
+              'Ahiram_sarcophagus.jpg': 'Ahiram sarcophagus Byblos',
+              'Gebel_Barkal_Amun_temple_(B500).JPG': 'Gebel Barkal Amun temple B500',
+              'Meroe_Pyramids,_Sudan.jpg': 'Meroe Pyramids Sudan',
+              'Crete-Palace-Knossos.JPG': 'Knossos Palace Crete',
+              'Lion_Gate,_Mycenae,_201507.jpg': 'Lion Gate Mycenae',
+              'Acheron_River_01.jpg': 'Acheron River Epirus',
+              'Eleusis_Telesterion.jpg': 'Archaeological Site of Eleusis Telesterion',
+              'Derveni_Papyrus.jpg': 'Derveni Papyrus Fragments on display in the Archaeological Museum of Thessaloniki',
+              'Orphic_gold_tablet_Hipponion.jpg': 'Orphic Gold Tablet Petelia British Museum London',
+              'Pyramids_Bar_North.jpg': 'Gebel Barkal pyramids Sudan',
+              'Standard_of_Ur_-_War.jpg': 'Standard of Ur War side',
+              'Cuneiform_tablet-_caravan_account_MET_DP-13441-004.jpg': 'cuneiform tablet caravan account Metropolitan Museum',
+              'Byblos(js)_6.jpg': 'Byblos archaeological site Lebanon',
+              'Tell_Megiddo_-_4.2006_-36.JPG': 'Tell Megiddo archaeological site',
+              'Lion_Gate,_Hattusa_13_(cropped).jpg': 'Lion Gate Hattusa',
+              'Yazilikaya_B_12erGruppe.jpg': 'Yazilikaya twelve gods Hattusa',
+              'Itur-ili_-_Business_Letter_-_Walters_481462_-_View_A.jpg': 'Itur ili business letter Walters cuneiform',
+              'Crat%C3%A8re_de_Derveni_0001.jpg': 'Derveni Krater Archaeological Museum of Thessaloniki',
+          }
+
+          known_files = {
+              'Eleusis_Telesterion.jpg': 'Archaeological Site of Eleusis - Telesterion 10.jpg',
+              'Derveni_Papyrus.jpg': 'Derveni Papyrus - Fragments on display in the Archaelogical Museum of Thessaloniki.jpg',
+              'Orphic_gold_tablet_Hipponion.jpg': 'Orphic Gold Tablet (Petelia - British Museum, London).jpg',
+              'Crat%C3%A8re_de_Derveni_0001.jpg': 'Cratère de Derveni 0001.jpg',
+          }
+
+          def request_url(url, method='GET', timeout=15):
+              req = urllib.request.Request(url, headers=UA, method=method)
+              return urllib.request.urlopen(req, timeout=timeout)
+
+          def is_image_url_ok(url):
+              try:
+                  with request_url(url, 'GET', 12) as r:
+                      status = getattr(r, 'status', 200)
+                      ctype = r.headers.get('Content-Type', '').lower()
+                      data = r.read(256)
+                      return status < 400 and ('image/' in ctype or data.startswith((b'\xff\xd8', b'\x89PNG', b'GIF8', b'RIFF')))
+              except Exception:
+                  return False
+
+          def commons_img_url(title, width=1100):
+              title = title.replace('File:', '')
+              return 'https://commons.wikimedia.org/wiki/Special:FilePath/' + quote(title, safe="'(),-_.") + f'?width={width}'
+
+          def commons_page_url(title):
+              title = title.replace('File:', '')
+              return 'https://commons.wikimedia.org/wiki/File:' + quote(title, safe="'(),-_.")
+
+          def commons_search(query):
+              query = ' '.join(query.split())[:240]
+              if query in cache:
+                  return cache[query]
+              params = urllib.parse.urlencode({
+                  'action': 'query',
+                  'format': 'json',
+                  'list': 'search',
+                  'srnamespace': '6',
+                  'srlimit': '8',
+                  'srsearch': query,
+              })
+              api = 'https://commons.wikimedia.org/w/api.php?' + params
+              try:
+                  with request_url(api, 'GET', 15) as r:
+                      data = json.loads(r.read().decode('utf-8'))
+              except Exception:
+                  cache[query] = None
+                  return None
+              for item in data.get('query', {}).get('search', []):
+                  title = item.get('title', '')
+                  if not title.startswith('File:'):
+                      continue
+                  img = commons_img_url(title)
+                  if is_image_url_ok(img):
+                      cache[query] = title.replace('File:', '')
+                      time.sleep(0.2)
+                      return cache[query]
+              cache[query] = None
+              return None
+
+          def old_filename_from_src(src):
+              m = re.search(r'/Special:FilePath/([^?]+)', src)
+              if m:
+                  return urllib.parse.unquote(m.group(1))
+              m = re.search(r'/([^/]+)$', src.split('?')[0])
+              if m:
+                  return urllib.parse.unquote(m.group(1))
+              return ''
+
+          def figure_query(fig, old_src):
+              old = old_filename_from_src(old_src)
+              for key, q in forced_queries.items():
+                  if key in old or key in old_src:
+                      return q, key
+              alt = ''
+              m = re.search(r'<img[^>]*\salt="([^"]*)"', fig)
+              if m:
+                  alt = html.unescape(m.group(1))
+              cap = re.sub(r'<[^>]+>', ' ', fig)
+              cap = html.unescape(cap)
+              return (alt + ' ' + cap[:160]).strip(), old
+
+          def update_figure(fig, new_title):
+              new_src = commons_img_url(new_title)
+              new_page = commons_page_url(new_title)
+              fig = re.sub(r'src="[^"]+"', f'src="{new_src}"', fig, count=1)
+              fig = re.sub(r'href="https://commons\.wikimedia\.org/wiki/File:[^"]+"', f'href="{new_page}"', fig, count=1)
+              return fig
+
+          def fix_images(content, report, path):
+              def repl(m):
+                  fig = m.group(0)
+                  imgm = re.search(r'<img[^>]*\ssrc="([^"]+)"', fig)
+                  if not imgm:
+                      return fig
+                  src = imgm.group(1)
+                  ok = is_image_url_ok(src)
+                  if ok:
+                      report.append(f'OK {path}: {src}')
+                      return fig
+                  query, oldkey = figure_query(fig, src)
+                  title = None
+                  if oldkey in known_files:
+                      candidate = known_files[oldkey]
+                      if is_image_url_ok(commons_img_url(candidate)):
+                          title = candidate
+                  if not title and query:
+                      title = commons_search(query)
+                  if title:
+                      new_fig = update_figure(fig, title)
+                      report.append(f'FIX {path}: {src} -> {title}')
+                      return new_fig
+                  report.append(f'BROKEN {path}: {src} | query={query}')
+                  return fig
+              return re.sub(r'<figure\b[\s\S]*?</figure>', repl, content)
+
+          LINKS = {
+              'British Museum — Collection Online': 'https://www.britishmuseum.org/collection',
+              'British Museum Collection Online': 'https://www.britishmuseum.org/collection',
+              'The Metropolitan Museum of Art — Heilbrunn Timeline of Art History': 'https://www.metmuseum.org/toah/',
+              'UNESCO World Heritage Centre': 'https://whc.unesco.org/',
+              'Staatliche Museen zu Berlin / Pergamonmuseum': 'https://www.smb.museum/en/museums-institutions/pergamonmuseum/home/',
+              'British Museum — Naukratis: Greeks in Egypt': 'https://www.britishmuseum.org/research/online_research_catalogues/ng/naukratis_greeks_in_egypt.aspx',
+              'Institute for the Study of the Ancient World — NYU': 'https://isaw.nyu.edu/',
+              'The Oriental Institute / Institute for the Study of Ancient Cultures — University of Chicago': 'https://isac.uchicago.edu/',
+              'Archaeological Museum of Thessaloniki': 'https://www.amth.gr/en',
+              'Getty Museum': 'https://www.getty.edu/art/collection/',
+              'J. Paul Getty Museum / Getty Villa': 'https://www.getty.edu/art/collection/',
+              'British Museum': 'https://www.britishmuseum.org/collection',
+              'Parco Archeologico dei Campi Flegrei': 'https://pafleg.cultura.gov.it/',
+              'Museo Archeologico dei Campi Flegrei': 'https://pafleg.cultura.gov.it/museo-archeologico-dei-campi-flegrei/',
+              'Perseus Digital Library': 'http://www.perseus.tufts.edu/hopper/',
+              'LacusCurtius': 'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/',
+              'Archaeology': 'https://archive.archaeology.org/',
+              'Standard of Ur — British Museum': 'https://www.britishmuseum.org/collection/object/W_1928-1010-3',
+              'Hattusha — UNESCO': 'https://whc.unesco.org/en/list/377/',
+              'Gebel Barkal — UNESCO': 'https://whc.unesco.org/en/list/1073/',
+              'Byblos — UNESCO': 'https://whc.unesco.org/en/list/295/',
+              'Megiddo — UNESCO': 'https://whc.unesco.org/en/list/1108/',
+              'Tassili n’Ajjer — UNESCO': 'https://whc.unesco.org/en/list/179/',
+              'Mycenae and Tiryns — UNESCO': 'https://whc.unesco.org/en/list/941/',
+              'Naukratis — British Museum': 'https://www.britishmuseum.org/research/online_research_catalogues/ng/naukratis_greeks_in_egypt.aspx',
+              'Beyond Babylon — Metropolitan Museum of Art': 'https://www.metmuseum.org/exhibitions/listings/2008/beyond-babylon',
+              'Assyria to Iberia — Metropolitan Museum of Art': 'https://www.metmuseum.org/exhibitions/listings/2014/assyria-to-iberia',
+              'Ishtar Gate — Smarthistory': 'https://smarthistory.org/ishtar-gate-and-processional-way/',
+              'Petelia gold tablet — British Museum': 'https://www.britishmuseum.org/collection/object/G_1843-0724-3',
+          }
+
+          def link_text(text):
+              for label, url in sorted(LINKS.items(), key=lambda kv: -len(kv[0])):
+                  if f'>{label}</a>' in text:
+                      continue
+                  text = re.sub(r'(?<![">])\b' + re.escape(label) + r'\b(?![^<]*</a>)', f'<a href="{url}" target="_blank" rel="noopener noreferrer">{label}</a>', text)
+              return text
+
+          article2_multimedia = '''<h2 id="materiali-video-multimediali">Materiali video e multimediali</h2>
+        <ul>
+          <li><a href="https://www.britishmuseum.org/collection/object/W_1928-1010-3" target="_blank" rel="noopener noreferrer">British Museum — Standard of Ur</a>: oggetto chiave per lavorare su registri, gerarchia e potere nell’immagine mesopotamica.</li>
+          <li><a href="https://smarthistory.org/ishtar-gate-and-processional-way/" target="_blank" rel="noopener noreferrer">Smarthistory — Ishtar Gate and Processional Way</a>: risorsa video/didattica sulla Porta di Ištar e sulla via processionale di Babilonia.</li>
+          <li><a href="https://www.metmuseum.org/exhibitions/listings/2008/beyond-babylon" target="_blank" rel="noopener noreferrer">Metropolitan Museum — Beyond Babylon</a>: materiali su arte, diplomazia e scambi nel secondo millennio a.C.</li>
+          <li><a href="https://www.metmuseum.org/exhibitions/listings/2014/assyria-to-iberia" target="_blank" rel="noopener noreferrer">Metropolitan Museum — Assyria to Iberia</a>: percorso su Assiria, Fenici e trasmissione delle forme verso il Mediterraneo.</li>
+          <li><a href="https://whc.unesco.org/en/list/377/" target="_blank" rel="noopener noreferrer">UNESCO — Hattusha</a>: scheda ufficiale con descrizione del sito, porte monumentali e Yazılıkaya.</li>
+          <li><a href="https://whc.unesco.org/en/list/1073/" target="_blank" rel="noopener noreferrer">UNESCO — Gebel Barkal and the Sites of the Napatan Region</a>: scheda ufficiale su montagna sacra, templi e regalità kushita.</li>
+          <li><a href="https://whc.unesco.org/en/list/295/" target="_blank" rel="noopener noreferrer">UNESCO — Byblos</a>: scheda ufficiale per lavorare su porto, città stratificata e scambi levantini.</li>
+          <li><a href="https://whc.unesco.org/en/list/1108/" target="_blank" rel="noopener noreferrer">UNESCO — Biblical Tels: Megiddo, Hazor, Beer Sheba</a>: scheda ufficiale su tell, sistemi idrici e città di passaggio.</li>
+          <li><a href="https://www.britishmuseum.org/research/online_research_catalogues/ng/naukratis_greeks_in_egypt.aspx" target="_blank" rel="noopener noreferrer">British Museum — Naukratis: Greeks in Egypt</a>: catalogo online per il porto del Delta, gli scambi e i materiali greco-egizi.</li>
+        </ul>'''
+
+          article2_iconography = '''<h2 id="iconografia-consigliata">Iconografia consigliata</h2>
+        <h3>Sahara e paesaggi d’acqua</h3>
+        <ul>
+          <li><a href="https://whc.unesco.org/en/list/179/" target="_blank" rel="noopener noreferrer">Tassili n’Ajjer — UNESCO</a>: pitture e incisioni rupestri nel paesaggio sahariano.</li>
+          <li><a href="https://commons.wikimedia.org/wiki/Category:Holocene_Sahara" target="_blank" rel="noopener noreferrer">Mappe e immagini del Sahara olocenico — Wikimedia Commons</a>: da usare solo verificando licenza e provenienza.</li>
+        </ul>
+
+        <h3>Nilo, Nubia, Kush, Egitto</h3>
+        <ul>
+          <li><a href="https://whc.unesco.org/en/list/1073/" target="_blank" rel="noopener noreferrer">Gebel Barkal — UNESCO</a>: montagna sacra, templi e paesaggio regale kushita.</li>
+          <li><a href="https://www.metmuseum.org/toah/hd/nubi/hd_nubi.htm" target="_blank" rel="noopener noreferrer">Metropolitan Museum — Nubia</a>: quadro storico-artistico sul mondo nubiano.</li>
+          <li><a href="https://www.louvre.fr/en/explore/the-palace/from-mastaba-to-pyramid" target="_blank" rel="noopener noreferrer">Louvre — From mastaba to pyramid</a>: passaggio dalle tombe mastaba alle piramidi egizie.</li>
+        </ul>
+
+        <h3>Mesopotamia, Levante, Anatolia</h3>
+        <ul>
+          <li><a href="https://www.britishmuseum.org/collection/object/W_1928-1010-3" target="_blank" rel="noopener noreferrer">Standard of Ur — British Museum</a>.</li>
+          <li><a href="https://www.metmuseum.org/art/collection/search/329081" target="_blank" rel="noopener noreferrer">Tavoletta commerciale cuneiforme — Metropolitan Museum</a>.</li>
+          <li><a href="https://whc.unesco.org/en/list/295/" target="_blank" rel="noopener noreferrer">Byblos — UNESCO</a>.</li>
+          <li><a href="https://whc.unesco.org/en/list/1108/" target="_blank" rel="noopener noreferrer">Megiddo — UNESCO</a>.</li>
+          <li><a href="https://whc.unesco.org/en/list/377/" target="_blank" rel="noopener noreferrer">Hattusha e Yazılıkaya — UNESCO</a>.</li>
+        </ul>
+
+        <hr>'''
+
+          def replace_section(content, start_id, replacement, until_next='</ul>'):
+              start = content.find(f'<h2 id="{start_id}">')
+              if start < 0:
+                  return content
+              # replace through the next hr or through last ul for end sections
+              nxt = content.find('\n        <hr>', start + 1)
+              close_article = content.find('\n      </div>', start + 1)
+              if nxt < 0 or (close_article >= 0 and close_article < nxt):
+                  end = close_article if close_article >= 0 else len(content)
+                  return content[:start] + replacement + content[end:]
+              return content[:start] + replacement + content[nxt:]
+
+          def fix_article2(content):
+              content = replace_section(content, 'iconografia-consigliata', article2_iconography)
+              content = replace_section(content, 'materiali-video-multimediali', article2_multimedia)
+              return link_text(content)
+
+          def fix_article3(content):
+              content = link_text(content)
+              # Add precise active links to iconography lists without changing the didactic structure.
+              content = content.replace('<li>Tavoletta da Ebla.</li>', '<li><a href="https://www.metmuseum.org/toah/hd/ebla/hd_ebla.htm" target="_blank" rel="noopener noreferrer">Ebla e archivi palaziali — Metropolitan Museum</a>.</li>')
+              content = content.replace('<li>Lettera di Amarna.</li>', '<li><a href="https://www.britishmuseum.org/collection/object/W_1888-1013-46" target="_blank" rel="noopener noreferrer">Lettera di Amarna — British Museum</a>.</li>')
+              content = content.replace('<li>Porta di Ištar.</li>', '<li><a href="https://smarthistory.org/ishtar-gate-and-processional-way/" target="_blank" rel="noopener noreferrer">Porta di Ištar e via processionale — Smarthistory</a>.</li>')
+              content = content.replace('<li>Porta dei Leoni di Micene.</li>', '<li><a href="https://whc.unesco.org/en/list/941/" target="_blank" rel="noopener noreferrer">Porta dei Leoni di Micene — UNESCO</a>.</li>')
+              content = content.replace('<li>Gebel Barkal.</li>', '<li><a href="https://whc.unesco.org/en/list/1073/" target="_blank" rel="noopener noreferrer">Gebel Barkal — UNESCO</a>.</li>')
+              content = content.replace('<li>Materiali da Naukratis.</li>', '<li><a href="https://www.britishmuseum.org/research/online_research_catalogues/ng/naukratis_greeks_in_egypt.aspx" target="_blank" rel="noopener noreferrer">Materiali da Naukratis — British Museum</a>.</li>')
+              content = content.replace('<li>Palazzo di Cnosso.</li>', '<li><a href="https://www.heraklionmuseum.gr/en/exhibitions/permanent-exhibition/" target="_blank" rel="noopener noreferrer">Palazzo e materiali minoici — Museo Archeologico di Heraklion</a>.</li>')
+              content = content.replace('<li>Tesoro di Atreo.</li>', '<li><a href="https://whc.unesco.org/en/list/941/" target="_blank" rel="noopener noreferrer">Tesoro di Atreo e Micene — UNESCO</a>.</li>')
+              content = content.replace('<li>Papiro di Derveni.</li>', '<li><a href="https://www.amth.gr/en/exhibitions/highlights" target="_blank" rel="noopener noreferrer">Papiro di Derveni — Archaeological Museum of Thessaloniki</a>.</li>')
+              return content
+
+          def fix_article4(content):
+              content = link_text(content)
+              # Convert generic final scientific resources into active links.
+              content = content.replace('il <strong><a href="https://www.britishmuseum.org/collection" target="_blank" rel="noopener noreferrer">British Museum</a></strong> per la tavoletta di Petelia', 'il <strong><a href="https://www.britishmuseum.org/collection/object/G_1843-0724-3" target="_blank" rel="noopener noreferrer">British Museum — tavoletta aurea di Petelia</a></strong>')
+              content = content.replace('l’archivio della rivista <strong><a href="https://archive.archaeology.org/" target="_blank" rel="noopener noreferrer">Archaeology</a></strong>', 'l’archivio della rivista <strong><a href="https://archive.archaeology.org/online/features/hades/" target="_blank" rel="noopener noreferrer">Archaeology — Rethinking the Halls of Hades</a></strong>')
+              return content
+
+          report = []
+          for path in TARGETS:
+              if not path.exists():
+                  continue
+              content = path.read_text(encoding='utf-8')
+              content = fix_images(content, report, path.name)
+              if path.name == 'acque-pietre-citta.html':
+                  content = fix_article2(content)
+              elif path.name == 'tavolette-porte-misteri.html':
+                  content = fix_article3(content)
+              elif path.name == 'necromanteia-greci.html':
+                  content = fix_article4(content)
+              path.write_text(content, encoding='utf-8')
+
+          Path('media-check-report.md').write_text('\n'.join(report) + '\n', encoding='utf-8')
+          PY
+
+      - name: Mostra modifiche
+        run: |
+          git status --short
+          sed -n '1,180p' media-check-report.md || true
+
+      - name: Commit correzioni
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/correggi-media-articoli.yml
+          git add acque-pietre-citta.html tavolette-porte-misteri.html necromanteia-greci.html media-check-report.md .github/workflows/correggi-media-articoli.yml
+          if git diff --cached --quiet; then
+            echo "Nessuna modifica da salvare"
+          else
+            git commit -m "[media-fix-bot] Correggi media e link negli articoli 2-4"
+            git push
+          fi
