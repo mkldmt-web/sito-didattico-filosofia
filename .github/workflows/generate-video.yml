@@ -43,10 +43,13 @@ jobs:
           cat > video-tools/.env <<EOF
           TTS_API_URL=https://api.openai.com/v1/audio/speech
           TTS_API_KEY=${{ secrets.OPENAI_API_KEY }}
-          TTS_MODEL=tts-1-hd
+          TTS_MODEL=gpt-4o-mini-tts
           TTS_VOICE=${{ github.event.inputs.tts_voice }}
           TTS_SPEED=${{ github.event.inputs.tts_speed }}
           TTS_OUTPUT_FORMAT=mp3
+          TTS_MAX_ATTEMPTS=8
+          TTS_RETRY_BASE_SECONDS=25
+          TTS_PAUSE_SECONDS=5
           VIDEO_RESOLUTION=1280x720
           VIDEO_FPS=24
           VIDEO_CRF=28
@@ -62,7 +65,7 @@ jobs:
 
       - name: Generate video
         run: |
-          python video-tools/generate_video.py
+          python video-tools/generate_video.py --max-chars 1200
 
       - name: Show generated files
         run: |
