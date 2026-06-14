@@ -9,8 +9,8 @@ La pipeline:
 - produce anche un file VTT per i sottotitoli.
 
 Questa versione è pensata per GitHub Actions: non deve fallire se una
-immagine esterna è irraggiungibile e gestisce i 429 del TTS con attese,
-ritentativi e messaggi leggibili.
+immagine esterna è irraggiungibile e può generare il video in due parti
+per ridurre il rischio di rate limit sul TTS.
 """
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import html
 import json
+import math
 import os
 import re
 import shutil
@@ -37,9 +38,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 ARTICLE = ROOT / "quando-l-arte-era-una-soglia.html"
 OUT_DIR = ROOT / "assets" / "video"
-WORK_DIR = ROOT / "video-tools" / ".cache" / "quando-l-arte-era-una-soglia"
-MP4_OUT = OUT_DIR / "quando-l-arte-era-una-soglia.mp4"
-VTT_OUT = OUT_DIR / "quando-l-arte-era-una-soglia.vtt"
+WORK_DIR_BASE = ROOT / "video-tools" / ".cache" / "quando-l-arte-era-una-soglia"
+BASE_SLUG = "quando-l-arte-era-una-soglia"
 
 EXCLUDED_H2 = {
     "Laboratori della soglia",
@@ -54,7 +54,7 @@ DEFAULT_TITLE = "Quando l’arte era una soglia"
 
 IMAGE_HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (compatible; FilosofiaPerLiceiArtisticiVideo/1.2; "
+        "Mozilla/5.0 (compatible; FilosofiaPerLiceiArtisticiVideo/1.3; "
         "+https://mkldmt-web.github.io/sito-didattico-filosofia/)"
     ),
     "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
@@ -106,11 +106,7 @@ def extract_image(figure: Tag) -> ImageRef | None:
 
 
 def split_into_scenes(text: str, max_chars: int) -> list[str]:
-    """Divide il testo in scene abbastanza lunghe da ridurre le chiamate TTS.
-
-    Scene troppo brevi producono un video frammentato e molte richieste audio.
-    Scene più lunghe danno una lettura più fluida e riducono il rischio di rate limit.
-    """
+    """Divide il testo in scene abbastanza lunghe da ridurre le chiamate TTS."""
     sentences = re.split(r"(?<=[.!?])\s+(?=[A-ZÀ-Ü0-9])", text)
     chunks: list[str] = []
     current = ""
@@ -188,6 +184,42 @@ def extract_scenes(article_path: Path, max_chars: int) -> list[Scene]:
     return scenes
 
 
+def select_part(scenes: list[Scene], part: str) -> list[Scene]:
+    """Restituisce tutte le scene oppure solo metà articolo.
+
+    La divisione serve a generare due video separati e a dimezzare le richieste TTS
+    per ogni esecuzione della GitHub Action.
+    """
+    if part == "all":
+        selected = scenes
+    else:
+        midpoint = math.ceil(len(scenes) / 2)
+        if part == "1":
+            selected = scenes[:midpoint]
+        elif part == "2":
+            selected = scenes[midpoint:]
+        else:
+            raise RuntimeError("Parametro --part non valido: usa 1, 2 oppure all.")
+    for index, scene in enumerate(selected, start=1):
+        scene.index = index
+        scene.duration = 0.0
+        scene.starts_at = 0.0
+        scene.audio_path = None
+    return selected
+
+
+def output_paths(part: str) -> tuple[Path, Path, Path]:
+    if part == "all":
+        suffix = ""
+        work = WORK_DIR_BASE / "intero"
+    else:
+        suffix = f"-parte-{part}"
+        work = WORK_DIR_BASE / f"parte-{part}"
+    mp4 = OUT_DIR / f"{BASE_SLUG}{suffix}.mp4"
+    vtt = OUT_DIR / f"{BASE_SLUG}{suffix}.vtt"
+    return mp4, vtt, work
+
+
 def require_binary(name: str) -> None:
     if not shutil.which(name):
         raise RuntimeError(f"'{name}' non trovato nel PATH. Installa ffmpeg prima di eseguire la pipeline.")
@@ -217,13 +249,10 @@ def create_fallback_image(image: ImageRef, jpg: Path, resolution: tuple[int, int
         body_font = ImageFont.load_default()
 
     margin = int(width * 0.08)
-    title = DEFAULT_TITLE
-    subtitle = fallback_image_text(image)
-
     y = int(height * 0.28)
-    draw.text((margin, y), title, fill=(238, 232, 218), font=title_font)
+    draw.text((margin, y), DEFAULT_TITLE, fill=(238, 232, 218), font=title_font)
     y += int(height * 0.09)
-    for line in textwrap.wrap(subtitle, width=58):
+    for line in textwrap.wrap(fallback_image_text(image), width=58):
         draw.text((margin, y), line, fill=(206, 196, 176), font=body_font)
         y += int(height * 0.055)
     draw.text(
@@ -254,7 +283,7 @@ def download_with_retries(url: str, raw: Path) -> None:
                 raise RuntimeError(f"Risposta non immagine: {content_type}")
             raw.write_bytes(response.content)
             return
-        except Exception as exc:  # noqa: BLE001 - fallback robusto in CI
+        except Exception as exc:  # noqa: BLE001
             last_error = exc
             wait = 3 * attempt
             print(f"Avviso: download immagine fallito ({attempt}/5): {exc}. Riprovo tra {wait}s.")
@@ -321,9 +350,9 @@ def synthesize(scene: Scene, audio_dir: Path, env: dict[str, str]) -> Path:
         "response_format": fmt,
     }
 
-    max_attempts = int(env.get("TTS_MAX_ATTEMPTS", "8"))
-    base_wait = int(env.get("TTS_RETRY_BASE_SECONDS", "20"))
-    pause_between_calls = float(env.get("TTS_PAUSE_SECONDS", "4"))
+    max_attempts = int(env.get("TTS_MAX_ATTEMPTS", "10"))
+    base_wait = int(env.get("TTS_RETRY_BASE_SECONDS", "35"))
+    pause_between_calls = float(env.get("TTS_PAUSE_SECONDS", "15"))
     last_error = ""
 
     for attempt in range(1, max_attempts + 1):
@@ -345,8 +374,9 @@ def synthesize(scene: Scene, audio_dir: Path, env: dict[str, str]) -> Path:
         details = parse_tts_error(response)
         last_error = f"HTTP {response.status_code}: {details}"
         print(f"Avviso TTS scena {scene.index}: {last_error}")
+        lower = details.lower()
 
-        if "insufficient_quota" in details or "billing" in details.lower() or "quota" in details.lower():
+        if "insufficient_quota" in lower or "billing" in lower or "exceeded your current quota" in lower:
             raise RuntimeError(
                 "OpenAI API non ha quota/credito disponibile per generare l'audio. "
                 "Controlla billing e crediti su platform.openai.com. Dettaglio: " + last_error
@@ -420,46 +450,24 @@ def make_scene_video(scene: Scene, scene_dir: Path, resolution: str, fps: int, c
     )
     run(
         [
-            "ffmpeg",
-            "-y",
-            "-loop",
-            "1",
-            "-i",
-            scene.image.local_path,
-            "-i",
-            scene.audio_path,
-            "-t",
-            f"{scene.duration:.3f}",
-            "-vf",
-            vf,
-            "-c:v",
-            "libx264",
-            "-pix_fmt",
-            "yuv420p",
-            "-c:a",
-            "aac",
-            "-b:a",
-            "192k",
-            "-shortest",
-            "-crf",
-            crf,
-            "-preset",
-            preset,
-            str(out),
+            "ffmpeg", "-y", "-loop", "1", "-i", scene.image.local_path, "-i", scene.audio_path,
+            "-t", f"{scene.duration:.3f}", "-vf", vf, "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-b:a", "192k", "-shortest", "-crf", crf, "-preset", preset, str(out),
         ]
     )
     return out
 
 
-def concat_videos(parts: list[Path], out: Path) -> None:
-    list_file = WORK_DIR / "concat.txt"
+def concat_videos(parts: list[Path], out: Path, work_dir: Path) -> None:
+    list_file = work_dir / "concat.txt"
     list_file.write_text("\n".join(f"file '{p.as_posix()}'" for p in parts), encoding="utf-8")
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_file), "-c", "copy", str(out)])
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Genera MP4 e VTT dall'articolo quando-l-arte-era-una-soglia.html")
-    parser.add_argument("--max-chars", type=int, default=1200, help="lunghezza massima indicativa del testo di una scena")
+    parser.add_argument("--max-chars", type=int, default=1500, help="lunghezza massima indicativa del testo di una scena")
+    parser.add_argument("--part", choices=["1", "2", "all"], default="all", help="genera solo parte 1, parte 2, oppure tutto")
     parser.add_argument("--manifest-only", action="store_true", help="estrae scene e immagini senza chiamare TTS/ffmpeg")
     args = parser.parse_args()
 
@@ -470,21 +478,24 @@ def main() -> None:
     crf = env.get("VIDEO_CRF", "28")
     preset = env.get("VIDEO_PRESET", "medium")
     size = tuple(map(int, resolution.lower().split("x", 1)))
+    mp4_out, vtt_out, work_dir = output_paths(args.part)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    image_dir = WORK_DIR / "images"
-    audio_dir = WORK_DIR / "audio"
-    scene_dir = WORK_DIR / "scenes"
+    image_dir = work_dir / "images"
+    audio_dir = work_dir / "audio"
+    scene_dir = work_dir / "scenes"
     for folder in (image_dir, audio_dir, scene_dir):
         folder.mkdir(parents=True, exist_ok=True)
 
-    scenes = extract_scenes(ARTICLE, args.max_chars)
+    all_scenes = extract_scenes(ARTICLE, args.max_chars)
+    scenes = select_part(all_scenes, args.part)
     for scene in scenes:
         download_image(scene.image, image_dir, size)
 
-    manifest = WORK_DIR / "scenes.json"
+    manifest = work_dir / "scenes.json"
     manifest.write_text(json.dumps([asdict(scene) for scene in scenes], ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Scene estratte: {len(scenes)}")
+    print(f"Scene totali articolo: {len(all_scenes)}")
+    print(f"Scene selezionate per parte {args.part}: {len(scenes)}")
     print(f"Manifest: {manifest}")
     if args.manifest_only:
         return
@@ -498,13 +509,13 @@ def main() -> None:
         scene.duration = media_duration(audio)
         scene.starts_at = elapsed
         elapsed += scene.duration
-    write_vtt(scenes, VTT_OUT)
+    write_vtt(scenes, vtt_out)
     manifest.write_text(json.dumps([asdict(scene) for scene in scenes], ensure_ascii=False, indent=2), encoding="utf-8")
 
     parts = [make_scene_video(scene, scene_dir, resolution, fps, crf, preset) for scene in scenes]
-    concat_videos(parts, MP4_OUT)
-    print(f"Video generato: {MP4_OUT}")
-    print(f"Sottotitoli generati: {VTT_OUT}")
+    concat_videos(parts, mp4_out, work_dir)
+    print(f"Video generato: {mp4_out}")
+    print(f"Sottotitoli generati: {vtt_out}")
 
 
 if __name__ == "__main__":
