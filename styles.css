@@ -352,7 +352,6 @@ p {
   box-shadow: var(--shadow-soft);
 }
 
-
 .media-cluster {
   margin: 2rem 0;
   padding: 1.25rem;
@@ -528,4 +527,25 @@ p {
   .video-section {
     padding: 1.5rem;
   }
+}
+
+/* Fallback robusti per immagini Wikimedia dell’approfondimento Necromanteia: usa Special:FilePath quando i thumbnail diretti non vengono generati dal browser. */
+img[src*="Basement_of_Necromanteion.jpg"] {
+  content: url("https://commons.wikimedia.org/wiki/Special:FilePath/DSCF6210_%CE%9D%CE%B5%CE%BA%CF%81%CE%BF%CE%BC%CE%B1%CE%BD%CF%84%CE%B5%CE%B9%CE%BF_%CF%84%CE%BF%CF%85_%CE%91%CF%87%CE%B5%CF%81%CE%BF%CE%BD%CF%84%CE%B1.jpg?width=1200");
+}
+
+img[src*="Labyrinth_halls_at_Nekromanteion.jpg"] {
+  content: url("https://commons.wikimedia.org/wiki/Special:FilePath/Labyrinth_halls_at_Nekromanteion.jpg?width=1200");
+}
+
+img[src*="Orphic_Gold_Tablet"] {
+  content: url("https://commons.wikimedia.org/wiki/Special:FilePath/Orphic_Gold_Tablet_(Petelia_-_British_Museum,_London).jpg?width=1200");
+}
+
+img[src*="Derveni-papyrus.jpg"] {
+  content: url("https://commons.wikimedia.org/wiki/Special:FilePath/Derveni-papyrus.jpg?width=1200");
+}
+
+img[src*="Crat%C3%A8re_de_Derveni_0001.jpg"] {
+  content: url("https://commons.wikimedia.org/wiki/Special:FilePath/Crat%C3%A8re_de_Derveni_0001.jpg?width=1200");
 }
