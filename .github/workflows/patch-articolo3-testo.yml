@@ -1,0 +1,86 @@
+name: Patch articolo 3 testo
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-articolo3-testo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch articolo 3
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tavolette-porte-misteri.html')
+          s = path.read_text(encoding='utf-8')
+
+          # 1. Necromanteion: mantieni solo un passaggio breve, coerente con il testo corretto v2.
+          old = '''<p>Prima di arrivare a Eleusi, possiamo fermarci per un momento su un luogo che avrà bisogno di una ricerca autonoma: il Necromanteion, l’oracolo dei morti legato alla tradizione dell’Acheronte.</p>
+<p>Qui il sapere prende una forma estrema: interrogare i defunti. La domanda riguarda la possibilità di rivolgersi a chi ha attraversato la morte.</p>
+<p>Il Necromanteion porta il percorso verso un confine decisivo: buio, attesa, discesa, voce, apparizione, memoria. La morte diventa uno spazio interrogabile. L’uomo antico cerca una forma per ascoltare ciò che normalmente resta separato.</p>
+<p>In questo articolo lo tocchiamo solo come passaggio. La sua forza merita un approfondimento specifico.</p>'''
+          new = '''<p>Prima di arrivare a Eleusi, il percorso sfiora un luogo che avrà una ricerca autonoma: il Necromanteion, l’oracolo dei morti legato alla tradizione dell’Acheronte.</p>
+<p>Qui il sapere prende una forma estrema: interrogare i defunti. Buio, attesa, discesa, voce, apparizione, memoria: la morte diventa uno spazio interrogabile.</p>
+<p>In questo articolo resta un passaggio breve, necessario solo per aprire il movimento verso la Grecia dei misteri.</p>'''
+          s = s.replace(old, new)
+
+          # 2. Rimuovi Necromanteion dal laboratorio, come nel corretto v2.
+          s = s.replace('\n<li>Necromanteion come luogo di confine con il mondo dei morti.</li>', '')
+          s = s.replace('\n<li>Acheronte.</li>', '')
+
+          # 3. Rimuovi residuo presocratico.
+          s = s.replace('Testo fondamentale per il rapporto tra poesia orfica, interpretazione allegorica, rito, fuoco, sepoltura e pensiero presocratico.',
+                        'Documento centrale per il rapporto fra poesia orfica, interpretazione allegorica, ritualità e nascita di forme speculative greche anteriori alla filosofia sistematica.')
+
+          # 4. Conclusione: aggiorna titolo/id e blocco finale con la versione corretta v2.
+          start = s.find('<h2 id="conclusione-scrivere-attraversare-vedere">')
+          end = s.find('<hr>\n<h2 id="bibliografia-ragionata">', start)
+          if start != -1 and end != -1:
+              conclusion = '''<h2 id="conclusione-scrivere-attraversare-ricordare">Conclusione — Scrivere, attraversare, ricordare</h2>
+<p>Questo articolo ha seguito una serie di oggetti e luoghi: tavoletta, archivio, trattato, porta, rilievo, porto, alfabeto, palazzo, tomba, santuario, papiro, lamina.</p>
+<p>La tavoletta conserva l’ordine del palazzo.</p>
+<p>Il trattato rende materiale un rapporto politico.</p>
+<p>La porta trasforma l’ingresso in esperienza dell’autorità.</p>
+<p>Il rilievo imperiale dispone il corpo davanti alla memoria del re.</p>
+<p>Il porto traduce merci, immagini, alfabeti e divinità.</p>
+<p>Il palazzo concentra culto, amministrazione e ricchezza.</p>
+<p>La tomba dispone la memoria davanti alla morte.</p>
+<p>Il santuario misterico costruisce un’esperienza di visione, silenzio e trasformazione.</p>
+<p>La lamina aurea porta la parola nel punto più fragile: il viaggio dell’anima.</p>
+<p>Prima della filosofia greca argomentativa, il Mediterraneo orientale, il Vicino Oriente, il Nilo e l’Egeo hanno già prodotto molte forme di pensiero. Queste forme passano attraverso argilla, bronzo, pietra, colore, legno, sigillo, porta, nave, archivio, palazzo, sepolcro, rito, canto e parola custodita.</p>
+<p>Una civiltà pensa quando registra un dono, incide un nome, attraversa una porta, costruisce una tomba, apre un porto, trasforma un segno in alfabeto. Pensa anche quando prepara un corpo alla visione, depone una lamina accanto a un morto, interroga ciò che resta oltre il limite della vita.</p>
+<p>Per chi studia arte, questa è una lezione decisiva: le forme visibili non illustrano semplicemente idee già pronte. Spesso sono il luogo in cui una civiltà organizza il mondo, distribuisce il potere, conserva la memoria, accoglie l’altro, prepara la durata, immagina ciò che supera la vita ordinaria.</p>
+'''
+              s = s[:start] + conclusion + s[end:]
+
+          # 5. Aggiorna indice alla nuova conclusione.
+          s = s.replace('href="#conclusione-scrivere-attraversare-vedere">Conclusione — Scrivere, attraversare, vedere',
+                        'href="#conclusione-scrivere-attraversare-ricordare">Conclusione — Scrivere, attraversare, ricordare')
+
+          # 6. Verifiche negative richieste.
+          banned = ['Platone', 'Aristotele', 'presocratici', 'presocratico', 'Sommario esecutivo']
+          bad = [b for b in banned if b in s]
+          if bad:
+              raise SystemExit('Residui vietati: ' + ', '.join(bad))
+
+          path.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit patch e rimozione workflow
+        run: |
+          rm .github/workflows/patch-articolo3-testo.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tavolette-porte-misteri.html .github/workflows/patch-articolo3-testo.yml
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Allinea testo articolo 3 al master corretto"
+            git push
+          fi
