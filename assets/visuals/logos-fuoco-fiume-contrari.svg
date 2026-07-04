@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Eraclito: logos, fuoco, fiume, contrari</title>
+<desc id="desc">Schema visivo dei nuclei eraclitei: fuoco, fiume, contrari e logos comune.</desc>
+<rect width="1200" height="760" fill="#f8efe1"/>
+<text x="600" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="46" fill="#3b2d26" font-weight="700">Eraclito: logos, fuoco, fiume, contrari</text>
+<circle cx="600" cy="360" r="112" fill="#fff8ed" stroke="#8b4a2b" stroke-width="5"/>
+<text x="600" y="352" text-anchor="middle" font-family="Georgia,serif" font-size="44" fill="#6f2f1b" font-weight="700">LOGOS</text>
+<text x="600" y="390" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#5b4a3f">mondo comune</text>
+<path d="M220 380 C310 300 400 465 500 380 S710 300 805 382 S980 440 1040 336" fill="none" stroke="#377d93" stroke-width="14" stroke-linecap="round" opacity=".88"/>
+<path d="M558 270 C518 205 590 170 575 120 C660 175 690 220 642 275 C700 245 740 300 700 372 C680 420 624 450 590 475 C615 410 540 380 558 270 Z" fill="#c84d2c" opacity=".92"/>
+<g font-family="Georgia,serif" font-size="34" fill="#3b2d26" font-weight="700">
+<text x="180" y="220" text-anchor="middle">veglia</text>
+<text x="1020" y="220" text-anchor="middle">sonno</text>
+<text x="180" y="585" text-anchor="middle">secco</text>
+<text x="1020" y="585" text-anchor="middle">umido</text>
+</g>
+<g stroke="#8b4a2b" stroke-width="4" opacity=".65">
+<line x1="245" y1="232" x2="486" y2="312"/>
+<line x1="955" y1="232" x2="714" y2="312"/>
+<line x1="245" y1="570" x2="486" y2="410"/>
+<line x1="955" y1="570" x2="714" y2="410"/>
+</g>
+<g font-family="Arial,sans-serif" font-size="24" fill="#5b4a3f">
+<text x="600" y="640" text-anchor="middle">Il mondo muta come fiume e brucia come fuoco: il logos tiene insieme la tensione.</text>
+</g>
+</svg>
