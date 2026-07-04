@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Mappa del percorso pitagorico</title>
+<desc id="desc">Schema del Mediterraneo orientale e centrale con Samo, Crotone e Metaponto, e tracce secondarie verso Egitto e Oriente.</desc>
+<rect width="1200" height="760" fill="#f8efe1"/>
+<path d="M95 228 C180 180 290 155 420 170 C585 190 710 130 875 152 C990 167 1100 205 1135 275 L1135 650 L95 650 Z" fill="#e0c7a8" opacity=".78"/>
+<path d="M95 330 C210 285 375 288 500 330 C650 382 783 335 930 330 C1030 326 1095 350 1135 386 L1135 650 L95 650 Z" fill="#7fb3c8" opacity=".9"/>
+<path d="M500 332 C595 360 750 374 910 342" fill="none" stroke="#8b4a2b" stroke-width="8" stroke-linecap="round" stroke-dasharray="2 18"/>
+<path d="M512 325 C425 500 327 558 255 592" fill="none" stroke="#8b4a2b" stroke-width="8" stroke-linecap="round"/>
+<path d="M255 592 C300 615 350 615 405 592" fill="none" stroke="#8b4a2b" stroke-width="8" stroke-linecap="round"/>
+<path d="M512 325 C593 448 700 532 820 603" fill="none" stroke="#8b4a2b" stroke-width="4" stroke-linecap="round" stroke-dasharray="14 14" opacity=".7"/>
+<circle cx="512" cy="325" r="18" fill="#6f2f1b"/>
+<circle cx="255" cy="592" r="18" fill="#6f2f1b"/>
+<circle cx="405" cy="592" r="18" fill="#6f2f1b"/>
+<circle cx="910" cy="342" r="14" fill="#6f2f1b" opacity=".75"/>
+<circle cx="820" cy="603" r="12" fill="#6f2f1b" opacity=".6"/>
+<g font-family="Georgia, serif" fill="#3b2d26">
+<text x="512" y="285" text-anchor="middle" font-size="38" font-weight="700">Samo</text>
+<text x="255" y="642" text-anchor="middle" font-size="38" font-weight="700">Crotone</text>
+<text x="405" y="642" text-anchor="middle" font-size="38" font-weight="700">Metaponto</text>
+<text x="910" y="306" text-anchor="middle" font-size="30">Ionia</text>
+<text x="820" y="646" text-anchor="middle" font-size="28" opacity=".75">Egitto / Oriente</text>
+<text x="600" y="705" text-anchor="middle" font-size="24">Il sapere si muove: isole, porti, comunità, disciplina, numero.</text>
+</g>
+<g font-family="Arial, sans-serif" fill="#5b4a3f" font-size="22">
+<text x="105" y="80">Mappa didattica: non ricostruisce un itinerario certo, ma localizza i poli della tradizione pitagorica.</text>
+</g>
+</svg>
