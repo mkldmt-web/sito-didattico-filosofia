@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Chronos, Kairos, Aion</title>
+<desc id="desc">Schema didattico delle tre forme greche del tempo: Chronos, Kairos e Aion.</desc>
+<rect width="1200" height="760" fill="#fff8ed"/>
+<text x="600" y="75" text-anchor="middle" font-family="Georgia,serif" font-size="48" fill="#3b2d26" font-weight="700">Chronos, Kairos, Aion</text>
+<g transform="translate(95 155)">
+<circle cx="170" cy="170" r="130" fill="#f2e3d0" stroke="#8b4a2b" stroke-width="4"/>
+<line x1="170" y1="170" x2="170" y2="75" stroke="#6f2f1b" stroke-width="6" stroke-linecap="round"/>
+<line x1="170" y1="170" x2="230" y2="170" stroke="#6f2f1b" stroke-width="6" stroke-linecap="round"/>
+<text x="170" y="345" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#3b2d26" font-weight="700">Chronos</text>
+<text x="170" y="385" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#5b4a3f">durata misurabile</text>
+</g>
+<g transform="translate(430 155)">
+<path d="M170 40 C260 120 260 230 170 305 C80 230 80 120 170 40 Z" fill="#f2e3d0" stroke="#8b4a2b" stroke-width="4"/>
+<path d="M100 205 C150 160 195 155 240 125" fill="none" stroke="#6f2f1b" stroke-width="8" stroke-linecap="round"/>
+<circle cx="240" cy="125" r="14" fill="#6f2f1b"/>
+<text x="170" y="345" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#3b2d26" font-weight="700">Kairos</text>
+<text x="170" y="385" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#5b4a3f">occasione, taglio</text>
+</g>
+<g transform="translate(770 155)">
+<circle cx="170" cy="170" r="130" fill="#f2e3d0" stroke="#8b4a2b" stroke-width="4"/>
+<path d="M100 210 C145 110 230 110 245 205 C205 155 155 270 100 210 Z" fill="none" stroke="#6f2f1b" stroke-width="8" stroke-linecap="round"/>
+<circle cx="170" cy="170" r="22" fill="#6f2f1b"/>
+<text x="170" y="345" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#3b2d26" font-weight="700">Aion</text>
+<text x="170" y="385" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#5b4a3f">tempo-vita, gioco</text>
+</g>
+<text x="600" y="670" text-anchor="middle" font-family="Georgia,serif" font-size="27" fill="#3b2d26">Il tempo può misurare, aprire un varco, oppure giocare come vita cosmica.</text>
+</svg>
