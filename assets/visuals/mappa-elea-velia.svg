@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Localizzazione di Elea / Velia</title>
+<desc id="desc">Mappa didattica della posizione di Elea Velia nel Cilento, sulla costa tirrenica della Campania.</desc>
+<rect width="1200" height="760" fill="#f8efe1"/>
+<text x="600" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="46" fill="#3b2d26" font-weight="700">Dove si trova Elea / Velia</text>
+<path d="M405 120 C520 150 610 235 655 345 C703 462 660 580 560 650 C475 705 365 680 310 598 C250 510 260 390 298 290 C325 218 345 155 405 120 Z" fill="#d9bd96" stroke="#8b4a2b" stroke-width="4"/>
+<path d="M565 150 C690 210 795 320 830 470 C850 560 830 640 785 700 L1100 700 L1100 120 Z" fill="#7fb3c8" opacity=".9"/>
+<path d="M610 300 C660 390 638 500 575 575" fill="none" stroke="#6f2f1b" stroke-width="7" stroke-linecap="round"/>
+<circle cx="600" cy="535" r="18" fill="#6f2f1b"/>
+<line x1="600" y1="535" x2="840" y2="470" stroke="#6f2f1b" stroke-width="4"/>
+<rect x="825" y="420" width="255" height="95" rx="18" fill="#fff8ed" stroke="#8b4a2b" stroke-width="3"/>
+<text x="952" y="458" text-anchor="middle" font-family="Georgia,serif" font-size="32" fill="#3b2d26" font-weight="700">Elea / Velia</text>
+<text x="952" y="492" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#5b4a3f">Ascea, Cilento</text>
+<g font-family="Arial,sans-serif" font-size="24" fill="#5b4a3f">
+<text x="355" y="210">Campania</text>
+<text x="365" y="600">Magna Grecia</text>
+<text x="845" y="650">Mar Tirreno</text>
+</g>
+<text x="600" y="720" text-anchor="middle" font-family="Georgia,serif" font-size="26" fill="#3b2d26">La scuola eleatica nasce su una costa: porta, città, mare e via del pensiero.</text>
+</svg>
