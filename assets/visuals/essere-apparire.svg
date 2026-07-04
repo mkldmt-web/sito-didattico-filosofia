@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Parmenide: apparire molteplice ed Essere</title>
+<desc id="desc">Schema didattico sul rapporto tra molteplicità dell'apparire e unità dell'Essere in Parmenide.</desc>
+<rect width="1200" height="760" fill="#fff8ed"/>
+<text x="600" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="44" fill="#3b2d26" font-weight="700">Apparire molteplice → Essere</text>
+<g transform="translate(100 145)">
+<rect x="0" y="0" width="430" height="470" rx="28" fill="#f2e3d0" stroke="#d3b58e" stroke-width="3"/>
+<text x="215" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#3b2d26" font-weight="700">Apparire</text>
+<circle cx="105" cy="150" r="48" fill="#8aa6b1" opacity=".85"/>
+<rect x="225" y="115" width="105" height="105" rx="20" fill="#c84d2c" opacity=".85"/>
+<path d="M88 320 C150 240 245 420 335 300" fill="none" stroke="#6f2f1b" stroke-width="13" stroke-linecap="round"/>
+<text x="215" y="430" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#5b4a3f">forme, colori, movimento, opinione</text>
+</g>
+<path d="M560 380 L660 380" stroke="#8b4a2b" stroke-width="8" stroke-linecap="round" marker-end="url(#arrow)"/>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L8,3 z" fill="#8b4a2b"/></marker></defs>
+<g transform="translate(690 145)">
+<rect x="0" y="0" width="410" height="470" rx="28" fill="#efe2d1" stroke="#8b4a2b" stroke-width="3"/>
+<text x="205" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#3b2d26" font-weight="700">Essere</text>
+<circle cx="205" cy="235" r="118" fill="#fff8ed" stroke="#6f2f1b" stroke-width="9"/>
+<circle cx="205" cy="235" r="72" fill="none" stroke="#8b4a2b" stroke-width="3" opacity=".5"/>
+<text x="205" y="430" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#5b4a3f">unità, pienezza, stabilità</text>
+</g>
+<text x="600" y="700" text-anchor="middle" font-family="Georgia,serif" font-size="26" fill="#3b2d26">La domanda parmenidea cerca ciò che resta dietro il teatro delle forme.</text>
+</svg>
