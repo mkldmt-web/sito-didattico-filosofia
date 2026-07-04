@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Parmenide: carro, porte, dea</title>
+<desc id="desc">Tavola narrativa del proemio di Parmenide con carro, cavalle, porta tra Notte e Giorno e dea.</desc>
+<rect width="1200" height="760" fill="#f8efe1"/>
+<text x="600" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="46" fill="#3b2d26" font-weight="700">Carro, porte, dea</text>
+<path d="M95 615 C310 500 500 500 680 615" fill="none" stroke="#8b4a2b" stroke-width="9" stroke-linecap="round"/>
+<g transform="translate(220 430)" fill="none" stroke="#3b2d26" stroke-width="6">
+<circle cx="70" cy="115" r="42"/><circle cx="220" cy="115" r="42"/>
+<path d="M50 80 L240 80 L275 35"/>
+<path d="M120 80 C150 30 210 25 250 60"/>
+<path d="M275 35 C330 20 365 50 372 90"/>
+</g>
+<g transform="translate(625 150)">
+<rect x="0" y="0" width="210" height="430" fill="#d8bd95" stroke="#8b4a2b" stroke-width="5"/>
+<path d="M105 0 L105 430" stroke="#8b4a2b" stroke-width="5"/>
+<text x="52" y="220" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#3b2d26" transform="rotate(-90 52 220)">Notte</text>
+<text x="158" y="220" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#3b2d26" transform="rotate(90 158 220)">Giorno</text>
+</g>
+<g transform="translate(910 235)">
+<circle cx="80" cy="70" r="42" fill="#6f2f1b" opacity=".85"/>
+<path d="M80 112 L35 300 L125 300 Z" fill="#efe2d1" stroke="#8b4a2b" stroke-width="5"/>
+<path d="M45 165 L5 220 M115 165 L165 220" stroke="#8b4a2b" stroke-width="5" stroke-linecap="round"/>
+<text x="80" y="350" text-anchor="middle" font-family="Georgia,serif" font-size="32" fill="#3b2d26" font-weight="700">dea</text>
+</g>
+<g font-family="Arial,sans-serif" font-size="24" fill="#5b4a3f">
+<text x="300" y="675" text-anchor="middle">viaggio</text>
+<text x="730" y="640" text-anchor="middle">porta</text>
+<text x="990" y="640" text-anchor="middle">rivelazione</text>
+</g>
+</svg>
