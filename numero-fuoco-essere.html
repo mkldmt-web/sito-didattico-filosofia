@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Numero, fuoco, essere | Filosofia per Licei Artistici</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .article-note {
+      margin: 1.5rem 0;
+      padding: 1.25rem 1.5rem;
+      background: #fffdf8;
+      border: 1px solid var(--color-border);
+      border-left: 5px solid var(--color-accent);
+      border-radius: 0 18px 18px 0;
+    }
+
+    .image-placeholder {
+      min-height: 210px;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      color: var(--color-primary);
+      background: linear-gradient(135deg, #fffaf2 0%, #efe2d1 100%);
+      border: 1px dashed rgba(91, 74, 63, 0.35);
+      border-radius: 18px;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+    }
+
+    .quote-card {
+      margin: 1.4rem 0;
+      padding: 1.25rem 1.5rem;
+      background: #fffdf8;
+      border-left: 5px solid var(--color-accent);
+      border-radius: 0 18px 18px 0;
+    }
+
+    .quote-card p {
+      color: var(--color-primary);
+      font-size: 1.08rem;
+    }
+
+    .quote-card cite {
+      display: block;
+      margin-top: 0.75rem;
+      color: var(--color-muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-style: normal;
+      font-size: 0.9rem;
+    }
+
+    .link-panel {
+      margin: 1.5rem 0 2rem;
+      padding: 1.25rem;
+      background: #fffdf8;
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+    }
+
+    .link-panel h3 {
+      margin-top: 0;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .concept-box {
+      padding: 1rem;
+      background: linear-gradient(135deg, #fffdf8 0%, #f2e6d8 100%);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+    }
+
+    .concept-box h3 {
+      margin-top: 0;
+      color: var(--color-primary);
+    }
+
+    .deep-dive-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .deep-dive-list li {
+      margin: 0;
+      padding: 1rem;
+      background: #fffdf8;
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+    }
+
+    @media (max-width: 820px) {
+      .concept-grid,
+      .deep-dive-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html#inizio">Filosofia per Licei Artistici</a>
+      <ul class="nav-menu">
+        <li><a href="index.html#macro-aree">Macro-aree</a></li>
+        <li><a href="index.html#articoli">Articoli</a></li>
+        <li><a href="quando-l-arte-era-una-soglia.html">Corpi, grotte, presenze</a></li>
+        <li><a href="acque-pietre-citta.html">Acque, pietre, città</a></li>
+        <li><a href="tavolette-porte-misteri.html">Tavolette, porte, misteri</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="article-layout">
+    <article class="article-page">
+      <header class="article-hero">
+        <p class="eyebrow">Arte, sacro e civiltà antiche</p>
+        <h1>Numero, fuoco, essere</h1>
+        <p class="article-subtitle">Misteri, physis, armonia e logos nella Grecia arcaica</p>
+      </header>
+
+      <div class="article-content">
+        <nav class="media-cluster" aria-labelledby="indice-numero-fuoco-essere">
+          <h2 id="indice-numero-fuoco-essere">Indice</h2>
+          <ol>
+            <li><a href="#incipit">Incipit</a></li>
+            <li><a href="#rito-canto-visione">Rito, canto, visione</a></li>
+            <li><a href="#eleusi-dioniso-orfeo">Eleusi, Dioniso, Orfeo</a></li>
+            <li><a href="#efeso-artemide">Efeso: Artemide e il corpo sacro della città</a></li>
+            <li><a href="#mileto">Mileto: acqua, apeiron, aria</a></li>
+            <li><a href="#pitagora">Pitagora: numero, anima, armonia</a></li>
+            <li><a href="#eraclito">Eraclito: fuoco, logos, dormienti, fiume</a></li>
+            <li><a href="#parmenide">Parmenide: carro, porte, dea, essere</a></li>
+            <li><a href="#approfondimenti">Approfondimenti collegati</a></li>
+            <li><a href="#laboratori">Laboratori e domande</a></li>
+          </ol>
+        </nav>
+
+        <h2 id="incipit">Incipit</h2>
+        <p>Tra VII e V secolo a.C., il mondo greco pensa attraverso luoghi, corpi, riti, immagini e parole. I santuari di Eleusi, le città ioniche, Efeso, Samo, Crotone, Metaponto ed Elea formano una geografia viva: templi, porti, vie sacre, comunità, poemi, formule, statue, numeri.</p>
+        <p>In questo spazio il cosmo viene interrogato attraverso forme concrete: l’acqua, l’aria, l’indefinito, il numero, il fuoco, il fiume, la porta, la dea, la sfera. Ogni immagine apre una domanda: da dove vengono le cose? che cosa le tiene insieme? quale ritmo attraversa il mutamento? che rapporto esiste tra pensare, vedere ed essere?</p>
+        <p>Il percorso segue questa trama: dai misteri di Demetra, Dioniso e Orfeo alla Ionia di Mileto; dal numero pitagorico al fuoco di Eraclito; dal logos comune alla visione di Parmenide, dove il pensiero prende la forma di un viaggio verso la verità.</p>
+
+        <figure class="article-figure">
+          <div class="article-figure-grid">
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: Demetra / Demetra e Kore</div>
+              <figcaption><strong>Demetra.</strong> Terra, nutrimento, perdita e ritorno. Fonte museale da selezionare.</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: Dioniso</div>
+              <figcaption><strong>Dioniso.</strong> Estasi, maschera, corpo, trasformazione. Fonte museale da selezionare.</figcaption>
+            </figure>
+          </div>
+        </figure>
+        <figure class="article-figure">
+          <div class="article-figure-grid">
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: Orfeo</div>
+              <figcaption><strong>Orfeo.</strong> Canto, discesa, memoria dell’anima. Fonte museale da selezionare.</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <div class="image-placeholder">Trittico visivo: Demetra, Dioniso, Orfeo</div>
+              <figcaption><strong>Tre figure del sapere sacro greco.</strong> Terra, estasi, canto; nutrimento, metamorfosi, memoria.</figcaption>
+            </figure>
+          </div>
+        </figure>
+
+        <h2 id="rito-canto-visione">Rito, canto, visione</h2>
+        <p>Il pensiero greco arcaico prende forma nei luoghi, nei riti, nei canti e nelle immagini.</p>
+        <p>Un santuario è un ambiente costruito per trasformare chi entra. Un inno è parola ritmata, memoria, invocazione, presenza. Una formula incisa su una lamina d’oro è orientamento per l’anima.</p>
+        <p>Eleusi, Dioniso, Orfeo, le lamine auree e il papiro di Derveni appartengono a questo paesaggio. Mostrano una sapienza che attraversa mito, rito, morte, memoria e trasformazione.</p>
+        <p>A Eleusi, il mito di Demetra e Kore lega il ciclo della terra al destino umano. La discesa di Persefone nel mondo infero e il suo ritorno aprono una grammatica simbolica: perdita, ricerca, lutto, ritorno, fecondità, speranza. Il tempo è ritmo, scomparsa e riapparizione.</p>
+
+        <figure class="article-figure">
+          <div class="article-figure-grid">
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: Santuario / Telesterion di Eleusi</div>
+              <figcaption><strong>Eleusi.</strong> Il luogo iniziatico in cui architettura, rito e visione costruiscono esperienza.</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: rilievo di Demetra, Kore e Trittolemo</div>
+              <figcaption><strong>Demetra, Kore e Trittolemo.</strong> Terra, perdita, ritorno, ritmo della vita e della morte.</figcaption>
+            </figure>
+          </div>
+        </figure>
+
+        <h2 id="eleusi-dioniso-orfeo">Eleusi, Dioniso, Orfeo: sapere e trasformazione</h2>
+        <p>Il santuario di Eleusi custodisce una delle esperienze più intense del mondo greco. Il nucleo del mito è semplice e inesauribile: Kore scompare, Demetra la cerca, la terra si inaridisce, la figlia ritorna, la vita riprende.</p>
+        <p>La forza filosofica di questo racconto sta nel modo in cui tiene insieme la terra e l’essere umano. Il seme entra nel buio e riappare come germoglio. La figlia discende e risale. Il vivente attraversa la perdita e riceve una forma nuova.</p>
+        <div class="link-panel">
+          <h3>Approfondimento futuro</h3>
+          <p><a href="#approfondimenti">Demetra, Kore e i Misteri eleusini</a>: mito, ciclo morte-ritorno-fecondità, iconografia antica e fortuna artistica, fino alle riletture rinascimentali.</p>
+        </div>
+        <p>Dioniso porta un’altra energia: ebbrezza, danza, maschera, smembramento, rinascita. Con lui l’identità si apre, trabocca, si trasforma. Il corpo entra nel pensiero come ritmo, estasi, passaggio.</p>
+        <div class="link-panel">
+          <h3>Approfondimento futuro</h3>
+          <p><a href="#approfondimenti">Dioniso: corpo, maschera e rinascita</a>: mito, estasi, musica, tragedia, smembramento, ritorno e immagini del dio.</p>
+        </div>
+        <p>Orfeo porta il canto. La sua figura si muove tra vita e morte: chiama, discende, perde, ricorda. Nella costellazione orfica la parola è via, accompagnamento, orientamento dell’anima.</p>
+        <div class="link-panel">
+          <h3>Approfondimento futuro</h3>
+          <p><a href="#approfondimenti">Orfeo: il canto e la discesa</a>: mito, parola poetica, catabasi, memoria dell’anima e immagini antiche.</p>
+        </div>
+        <p>Qui la morte appare come viaggio, prova, memoria, riconoscimento. La sapienza prende forma in parole da custodire, immagini da attraversare, gesti da compiere.</p>
+
+        <h2 id="efeso-artemide">Efeso: Artemide e il corpo sacro della città</h2>
+        <p>Dopo Eleusi, Dioniso e Orfeo, il percorso si sposta verso <strong>Efeso</strong>, sulla costa ionica.</p>
+        <p>Efeso è la città di Eraclito e una città dominata da una grande immagine sacra: <strong>Artemide Efesina</strong>. Il suo tempio, l’Artemision, era uno dei luoghi più celebri del mondo antico. Qui il sacro prendeva forma in architettura, processione, statua, offerte, memoria cittadina.</p>
+        <p>Artemide Efesina appare come un corpo frontale, solenne, carico di segni. È potenza generativa, natura ordinata, protezione della città, molteplicità del vivente. Il suo corpo sembra custodire animali, nutrimento, forza, abbondanza.</p>
+        <p>Questa immagine prepara il clima di Eraclito. Prima del fuoco e del logos, incontriamo una città in cui la natura ha già una forma sacra, visibile, potente.</p>
+        <div class="link-panel">
+          <h3>Approfondimento futuro</h3>
+          <p><a href="#approfondimenti">Efeso: Artemide, il tempio e la città della memoria</a>. Artemision, immagini di Artemide Efesina, ricostruzioni del tempio, Biblioteca di Celso, video e materiali visivi.</p>
+        </div>
+
+        <h2 id="mileto">Mileto: acqua, apeiron, aria</h2>
+        <p>Da Efeso il percorso si apre alla <strong>Ionia</strong>, e in particolare a <strong>Mileto</strong>, città di mare, di porti, di commerci, di contatti mediterranei.</p>
+        <p>Qui il pensiero guarda il cosmo attraverso parole elementari e potenti: <strong>acqua</strong>, <strong>apeiron</strong>, <strong>aria</strong>.</p>
+        <p>Talete pensa l’acqua come principio vitale. L’acqua nutre, scorre, cambia forma, penetra la terra, sostiene i viventi. In una città aperta al mare, l’acqua è esperienza quotidiana e immagine cosmica.</p>
+        <p>Anassimandro introduce l’<strong>apeiron</strong>: l’indefinito, ciò che non ha forma chiusa, il fondo da cui le cose emergono e a cui ritornano. È una parola vertiginosa: indica una profondità originaria.</p>
+        <p>Anassimene pensa l’aria: respiro, invisibile presenza, vita che attraversa il corpo e il mondo. L’aria si addensa, si rarefà, diventa vento, nube, acqua, terra. Il cosmo appare come trasformazione continua di un principio vivente.</p>
+        <p>Qui la <strong>physis</strong> è ciò che cresce, appare, si manifesta. Natura significa venire alla luce.</p>
+        <div class="concept-grid">
+          <div class="concept-box"><h3>Talete</h3><p>Acqua, principio vitale, sapienza ionica.</p></div>
+          <div class="concept-box"><h3>Anassimandro</h3><p>Apeiron, fondo indefinito, limite e apparizione.</p></div>
+          <div class="concept-box"><h3>Anassimene</h3><p>Aria, respiro cosmico, trasformazione.</p></div>
+        </div>
+        <div class="article-note">
+          <p><strong>Nota iconografica.</strong> I ritratti dei filosofi arcaici sono spesso posteriori e convenzionali. Nel sito saranno usati come immagini della tradizione, accompagnati da una didascalia chiara.</p>
+        </div>
+
+        <h2 id="pitagora">Pitagora: numero, anima, armonia</h2>
+        <p>Da Mileto il percorso si sposta verso <strong>Samo</strong>, poi verso la <strong>Magna Grecia</strong>: Crotone e Metaponto.</p>
+        <p>Con Pitagora il pensiero prende la forma di una comunità. Dottrina e vita procedono insieme: ascolto, silenzio, disciplina, musica, numero, purificazione.</p>
+        <p>Il numero rivela una forma invisibile del cosmo. Una corda tesa produce suoni diversi secondo rapporti precisi: 1:2, 2:3, 3:4. L’orecchio ascolta, il pensiero riconosce una proporzione.</p>
+        <p>Il <strong>monocordo</strong> diventa così un oggetto filosofico: una corda, una misura, un suono, un rapporto. La musica mostra che il mondo può essere pensato come armonia.</p>
+        <p>La <strong>tetraktys</strong> raccoglie questa visione in una figura: dieci punti disposti in forma triangolare. Punto, linea, superficie, volume; unità, dualità, relazione, compimento.</p>
+        <p>Nel pitagorismo il numero, l’anima e il cosmo appartengono allo stesso ordine. Conoscere l’armonia significa accordare anche se stessi.</p>
+        <figure class="article-figure">
+          <div class="article-figure-grid">
+            <figure class="figure-card">
+              <div class="image-placeholder">Mappa da produrre: Samo → Crotone → Metaponto</div>
+              <figcaption><strong>Viaggio pitagorico.</strong> Mappa del Mediterraneo con Samo, Crotone e Metaponto; linea secondaria per le tradizioni di viaggio verso Egitto e Oriente.</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <div class="image-placeholder">Schema da produrre: tetraktys e monocordo</div>
+              <figcaption><strong>Numero e armonia.</strong> Tetraktys, rapporti musicali e monocordo come figure del cosmo ordinato.</figcaption>
+            </figure>
+          </div>
+        </figure>
+        <p>La figura di Pitagora si colloca tra storia, scuola e leggenda. Le tradizioni antiche e tardo-antiche lo collegano a viaggi di formazione nel Mediterraneo orientale, in Egitto e, in alcune ricostruzioni, anche verso l’Oriente più lontano. Autori come <strong>Porfirio</strong> e <strong>Giamblico</strong>, nelle loro vite di Pitagora, hanno contribuito a costruire l’immagine del sapiente iniziato: maestro di numero, musica, disciplina dell’anima, purificazione e armonia cosmica.</p>
+        <p>Anche il nome <strong>Pitagora</strong> custodisce un’aura oracolare: richiama Apollo Pitico, Delfi e la parola pronunciata nello spazio sacro. La tradizione lo presenta come una figura in cui numero, voce, profezia e disciplina dell’anima si raccolgono in un’unica immagine sapienziale.</p>
+        <p>Alla tradizione pitagorica è stato collegato anche un piccolo testo sapienziale noto come <strong>Versi aurei</strong>: una raccolta di precetti morali, spirituali e contemplativi attribuiti a Pitagora o alla sua scuola. La sua origine storica è più tarda e stratificata, ma per secoli questi versi sono stati letti come distillato della vita pitagorica: disciplina di sé, purificazione, memoria quotidiana delle azioni, rispetto dell’ordine divino, preparazione dell’anima all’armonia.</p>
+        <p>La dottrina della <strong>metempsicosi</strong>, cioè della trasmigrazione dell’anima attraverso più vite, è uno dei nuclei più profondi della tradizione pitagorica. Le fonti antiche collegano Pitagora all’idea che l’anima sopravviva alla morte e possa entrare in altri corpi: umani, animali, secondo un ordine che riguarda purificazione, memoria e disciplina della vita.</p>
+        <p>Pitagora e Buddha appaiono come due condensazioni storiche di tradizioni molto più antiche: da una parte il Mediterraneo del numero, dell’armonia e della metempsicosi; dall’altra l’India del saṃsāra, del karma e della liberazione. Entrambi raccolgono un sapere che precede le loro figure e lo rendono via di vita, disciplina e trasformazione.</p>
+        <div class="link-panel">
+          <h3>Approfondimenti futuri</h3>
+          <p><a href="#approfondimenti">Pitagora tra storia e leggenda sapienziale</a>, <a href="#approfondimenti">I Versi aurei</a>, <a href="#approfondimenti">Metempsicosi pitagorica, anima e reincarnazione</a>, <a href="#approfondimenti">Pitagora e Buddha</a>.</p>
+        </div>
+
+        <h2 id="eraclito">Eraclito: fuoco, logos, dormienti, fiume</h2>
+        <p>Da Pitagora il percorso torna verso <strong>Efeso</strong>, dove incontriamo <strong>Eraclito</strong>.</p>
+        <p>La sua parola è breve, densa, tagliente. Lascia frammenti che somigliano a formule oracolari: fuoco, fiume, guerra, armonia nascosta, sonno, veglia, logos.</p>
+        <figure class="article-figure">
+          <div class="article-figure-grid">
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: busto / ritratto tradizionale di Eraclito</div>
+              <figcaption><strong>Eraclito.</strong> Ritratto tradizionale o busto, da presentare come immagine posteriore della tradizione.</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <div class="image-placeholder">Schema da produrre: logos, fuoco, fiume, contrari</div>
+              <figcaption><strong>Logos e contrari.</strong> Schema visivo del fuoco, del fiume, della tensione e del mondo comune.</figcaption>
+            </figure>
+          </div>
+        </figure>
+        <p>Il primo centro è il <strong>logos</strong>.</p>
+        <div class="quote-card">
+          <p>«Di questo logos, che è sempre, gli uomini restano senza comprensione, sia prima di ascoltarlo sia dopo averlo ascoltato. Tutte le cose accadono secondo questo logos; eppure essi si comportano come inesperti, anche quando fanno esperienza di parole e opere come quelle che io espongo, distinguendo ciascuna cosa secondo la sua natura e dicendo com’è. Ma agli altri uomini resta nascosto ciò che fanno da svegli, come dimenticano ciò che fanno dormendo.»</p>
+          <cite>Eraclito, fr. B1 — resa provvisoria da verificare su edizione affidabile</cite>
+        </div>
+        <p>Il tema dei dormienti nasce dall’intreccio dei frammenti sul logos e sulla veglia. Gli uomini vivono dentro il logos, parlano, agiscono, incontrano le cose; eppure ciò che fanno da svegli resta loro nascosto come ciò che dimenticano nel sonno.</p>
+        <div class="quote-card">
+          <p>«Unico e comune è il mondo per coloro che sono desti; ciascuno dei dormienti invece si volge a un mondo proprio.»</p>
+          <cite>Eraclito, fr. B89</cite>
+        </div>
+        <p>Il <strong>fiume</strong> mostra il mutamento: le acque scorrono, la forma resta, l’identità vive nel cambiamento. Il mondo cambia secondo misura.</p>
+        <div class="quote-card">
+          <p>«A chi entra negli stessi fiumi sopraggiungono acque sempre diverse.»</p>
+          <cite>Eraclito, fr. B12</cite>
+        </div>
+        <p>Il <strong>fuoco</strong> è l’immagine cosmica più potente: brucia, trasforma, illumina, consuma. È movimento e ordine.</p>
+        <div class="quote-card">
+          <p>«Questo cosmo, lo stesso per tutti, nessuno degli dèi né degli uomini lo fece; ma fu sempre, è e sarà fuoco semprevivente, che si accende secondo misura e si spegne secondo misura.»</p>
+          <cite>Eraclito, fr. B30</cite>
+        </div>
+        <p><strong>Polemos</strong> indica tensione generativa. Ogni forma nasce da forze opposte che si tengono: come nell’arco, nella lira, nella corda tesa.</p>
+        <div class="quote-card">
+          <p>«Polemos è padre di tutte le cose, di tutte re: gli uni manifesta come dèi, gli altri come uomini; gli uni rende schiavi, gli altri liberi.»</p>
+          <cite>Eraclito, fr. B53</cite>
+        </div>
+        <h3>Aion: il fanciullo che gioca</h3>
+        <div class="quote-card">
+          <p>«Aion è un fanciullo che gioca, muovendo le pedine: di un fanciullo è il regno.»</p>
+          <cite>Eraclito, fr. B52</cite>
+        </div>
+        <p>Qui il tempo appare come gioco, disposizione, movimento, creazione e distruzione delle forme. Questa immagine avrà una lunga fortuna filosofica. Nietzsche legge Eraclito come il grande pensatore del divenire innocente e del mondo come gioco: nella <em>Filosofia nell’epoca tragica dei Greci</em> interpreta il cosmo eracliteo come movimento senza colpa, creazione e distruzione secondo necessità. Più tardi, in <em>Così parlò Zarathustra</em>, nella sezione <em>Delle tre metamorfosi</em>, il fanciullo diventa figura di innocenza, gioco, nuovo inizio e creazione di valori.</p>
+        <div class="link-panel">
+          <h3>Approfondimenti futuri</h3>
+          <p><a href="#approfondimenti">Eraclito: il fuoco, il logos e l’armonia nascosta</a>, <a href="#approfondimenti">Chronos, Kairos, Aion</a>, <a href="#approfondimenti">Nietzsche e i Greci</a>.</p>
+        </div>
+
+        <h2 id="parmenide">Parmenide: carro, porte, dea, essere</h2>
+        <p>Da Efeso il percorso si sposta in <strong>Magna Grecia</strong>, a <strong>Elea</strong>, dove il pensiero prende la forma di un poema.</p>
+        <p>Parmenide apre la sua opera con una scena visionaria: un carro, cavalle, fanciulle divine, porte, la soglia tra Notte e Giorno, una dea che accoglie il viandante e gli rivela le vie del pensiero.</p>
+        <p>Il sapere appare come attraversamento. Il filosofo viaggia, viene condotto, passa una porta, ascolta una voce divina.</p>
+        <p>Parmenide porta il percorso verso una domanda radicale: che cosa resta, dietro il mutamento delle cose?</p>
+        <p>Il mondo visibile mostra nascita, morte, movimento, differenza. Le cose appaiono, cambiano nome, forma, colore, posizione. La dea conduce invece il pensiero verso una realtà più profonda: <strong>l’Essere</strong>, unico, pieno, indivisibile, ingenerato.</p>
+        <p>L’Essere parmenideo può essere immaginato come il fondo stabile di tutto ciò che appare: una presenza compatta, senza fratture, che sostiene il mondo molteplice.</p>
+        <p>Per questo Parmenide resta vicino alla dimensione sapienziale di Pitagora ed Eraclito. Come Pitagora cerca l’armonia invisibile dietro i suoni, e come Eraclito cerca il logos comune dentro il fuoco del divenire, Parmenide cerca l’unità immobile dietro il teatro delle apparenze.</p>
+        <p>Per chi studia arte, la domanda può diventare questa: dietro la superficie visibile di una forma, esiste una struttura più profonda che la sostiene?</p>
+        <div class="quote-card">
+          <p>«L’una: che è e che non è possibile che non sia. È il sentiero della Persuasione, perché accompagna la Verità. L’altra: che non è e che è necessario che non sia. Questa via ti dico che è del tutto inesplorabile.»</p>
+          <cite>Parmenide, fr. B2 — resa provvisoria da verificare su edizione affidabile</cite>
+        </div>
+        <p>La porta è l’immagine fondamentale: passaggio tra due modi di vedere. La sfera diventa figura della pienezza, della compiutezza, dell’essere raccolto in se stesso.</p>
+        <figure class="article-figure">
+          <div class="article-figure-grid">
+            <figure class="figure-card">
+              <div class="image-placeholder">Immagine da inserire: Elea / Velia / Porta Rosa</div>
+              <figcaption><strong>Elea.</strong> Porta, passaggio e geografia filosofica della Magna Grecia.</figcaption>
+            </figure>
+            <figure class="figure-card">
+              <div class="image-placeholder">Schema da produrre: apparire molteplice → Essere</div>
+              <figcaption><strong>L’Essere.</strong> Forme, colori e movimento da un lato; unità, pienezza e stabilità dall’altro.</figcaption>
+            </figure>
+          </div>
+        </figure>
+        <p>Parmenide può essere accostato, per risonanza filosofica, alle grandi dottrine della non-dualità. Nelle Upaniṣad antiche, in parte anteriori o contemporanee al mondo di Parmenide, compare la ricerca di una realtà ultima oltre la molteplicità dell’apparire: Ātman, Brahman, il fondo profondo dell’essere. L’Advaita Vedānta sistematizzerà molto più tardi questa intuizione in forma dottrinale, ma la domanda sull’unità del reale appartiene già a un orizzonte sapienziale antichissimo.</p>
+        <p>Con Pitagora e Buddha emerge il tema delle molte vite: l’anima, o la coscienza, attraversa esistenze diverse; la vita diventa disciplina, purificazione, liberazione. Con Parmenide e le Upaniṣad emerge invece il tema dell’unità: dietro la molteplicità delle forme appare una realtà più profonda, piena, indivisa, stabile.</p>
+        <div class="link-panel">
+          <h3>Approfondimenti futuri</h3>
+          <p><a href="#approfondimenti">Parmenide: il carro, la dea e la via dell’essere</a>, <a href="#approfondimenti">Parmenide e le Upaniṣad</a>, <a href="#approfondimenti">Advaita Vedānta e non-dualità</a>.</p>
+        </div>
+
+        <h2 id="approfondimenti">Approfondimenti collegati</h2>
+        <p>Questa pagina principale prepara una costellazione di approfondimenti autonomi, sul modello del modulo dedicato ai necromanteia greci.</p>
+        <ul class="deep-dive-list">
+          <li><strong>Demetra, Kore e i Misteri eleusini</strong><br>Mito, rito, immagini antiche, fortuna rinascimentale.</li>
+          <li><strong>Dioniso: corpo, maschera e rinascita</strong><br>Estasi, musica, tragedia, smembramento, trasformazione.</li>
+          <li><strong>Orfeo: canto e discesa</strong><br>Catabasi, memoria, poesia, anima.</li>
+          <li><strong>Efeso: Artemide, tempio e memoria</strong><br>Artemision, immagini della dea, Biblioteca di Celso, ricostruzioni video.</li>
+          <li><strong>Talete, Anassimandro, Anassimene</strong><br>Schede autore, biografie essenziali, immagini tradizionali.</li>
+          <li><strong>Pitagora tra storia e leggenda</strong><br>Porfirio, Giamblico, Versi aurei, viaggi, Delfi, Apollo Pitico.</li>
+          <li><strong>Metempsicosi pitagorica</strong><br>Psiché, purificazione, anima, vite molteplici, confronto con India e Buddhismo.</li>
+          <li><strong>Nietzsche e i Greci</strong><br>Dioniso, Apollo, tragedia, Eraclito, Aion, fanciullo, gioco cosmico.</li>
+          <li><strong>Chronos, Kairos, Aion</strong><br>Le forme greche del tempo, immagini antiche e schemi.</li>
+          <li><strong>Parmenide e la non-dualità</strong><br>Essere, Upaniṣad, Ātman, Brahman, Advaita Vedānta.</li>
+        </ul>
+
+        <h2 id="laboratori">Laboratori e domande finali</h2>
+        <h3>Laboratori</h3>
+        <ul>
+          <li><strong>Disegnare il logos dei contrari:</strong> costruire una composizione fondata su luce/buio, secco/umido, alto/basso, quiete/movimento.</li>
+          <li><strong>Tetraktys e armonia:</strong> creare una tavola grafica su punto, linea, triangolo, numero e suono.</li>
+          <li><strong>Le due vie di Parmenide:</strong> rappresentare verità e opinione con porta, luce, notte, strada e voce.</li>
+          <li><strong>Mappa sapienziale:</strong> collegare Eleusi, Efeso, Mileto, Samo, Crotone, Metaponto, Elea, Delfi, Derveni.</li>
+        </ul>
+        <h3>Domande</h3>
+        <ol>
+          <li>Che cosa cambia quando il sapere prende forma in rito, immagine, numero e parola filosofica?</li>
+          <li>Il numero misura soltanto o rivela una forma invisibile?</li>
+          <li>Che cosa significa ascoltare un logos comune?</li>
+          <li>Una forma visibile può pensare?</li>
+          <li>Che rapporto c’è tra suono, misura, corpo e cosmo?</li>
+          <li>Che cosa resta dietro la superficie delle forme?</li>
+        </ol>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Filosofia per Licei Artistici. Progetto didattico aperto.</p>
+  </footer>
+</body>
+</html>
