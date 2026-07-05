@@ -7,108 +7,242 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #100d09;
-      --panel: rgba(28, 23, 18, 0.94);
-      --text: #f8efe3;
-      --muted: #d4c5b3;
-      --accent: #d99b58;
-      --line: rgba(248, 239, 227, 0.18);
-      --shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+      --bg: #17110d;
+      --bg-2: #2b1f16;
+      --panel: rgba(39, 30, 23, 0.88);
+      --panel-soft: rgba(248, 239, 225, 0.08);
+      --text: #fff3e1;
+      --muted: #d8c5ad;
+      --dim: #a89479;
+      --accent: #d39a62;
+      --accent-2: #b77443;
+      --line: rgba(255, 243, 225, 0.18);
+      --shadow: 0 34px 90px rgba(0, 0, 0, 0.48);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; overflow: hidden; color: var(--text); background: radial-gradient(circle at top left, rgba(217,155,88,.22), transparent 32rem), linear-gradient(135deg, #100d09 0%, #241a11 58%, #070604 100%); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 12%, rgba(211, 154, 98, 0.26), transparent 26rem),
+        radial-gradient(circle at 84% 80%, rgba(130, 72, 38, 0.22), transparent 30rem),
+        linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 52%, #0f0c0a 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .18;
+      background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 4.5rem 4.5rem;
+      mask-image: radial-gradient(circle at center, black, transparent 78%);
+    }
+
     a { color: inherit; }
-    .deck { position: relative; min-height: 100vh; padding: clamp(1rem, 2.6vw, 2rem); }
-    .slide { position: absolute; inset: clamp(1rem, 2.6vw, 2rem); display: grid; grid-template-columns: minmax(0, 0.98fr) minmax(22rem, 1.02fr); gap: clamp(1.2rem, 3vw, 3rem); align-items: stretch; opacity: 0; transform: translateX(2rem) scale(.99); pointer-events: none; transition: opacity 240ms ease, transform 240ms ease; }
+    .deck { position: relative; min-height: 100vh; padding: clamp(1rem, 2.4vw, 2rem); }
+    .slide {
+      position: absolute;
+      inset: clamp(1rem, 2.4vw, 2rem);
+      display: grid;
+      gap: clamp(1rem, 2.4vw, 2.4rem);
+      align-items: stretch;
+      opacity: 0;
+      transform: translateX(1.6rem) scale(.992);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
     .slide.is-active { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }
-    .slide-card, figure { border: 1px solid var(--line); border-radius: 1.6rem; background: var(--panel); box-shadow: var(--shadow); }
-    .slide-card { padding: clamp(1.5rem, 3.2vw, 3.2rem); display: flex; flex-direction: column; justify-content: center; }
-    .kicker { margin: 0 0 .9rem; color: var(--accent); font-size: clamp(.76rem, 1vw, .9rem); font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
-    .date { display: inline-block; width: fit-content; margin: 0 0 1rem; padding: .38rem .72rem; border: 1px solid rgba(217,155,88,.55); border-radius: 999px; background: rgba(217,155,88,.15); color: #ffe2bd; font-weight: 850; letter-spacing: .03em; }
-    h1, h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.3rem, 5.4vw, 5.7rem); line-height: .96; letter-spacing: -.055em; }
-    h2 { font-size: clamp(2rem, 4.6vw, 4.7rem); }
-    .guide { max-width: 42rem; margin: 1.25rem 0 0; color: var(--muted); font-size: clamp(1.05rem, 1.65vw, 1.4rem); line-height: 1.38; }
-    ul { margin: clamp(1.1rem, 2vw, 1.7rem) 0 0; padding: 0; list-style: none; display: grid; gap: .62rem; }
-    li { position: relative; padding-left: 1.3rem; color: #eadfce; font-size: clamp(1rem, 1.65vw, 1.38rem); line-height: 1.28; }
-    li::before { content: ""; position: absolute; left: 0; top: .65em; width: .43rem; height: .43rem; border-radius: 50%; background: var(--accent); }
-    figure { min-height: 72vh; margin: 0; padding: 1rem; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: .75rem; overflow: hidden; }
-    figure > img, .visual-grid img { width: 100%; height: 100%; max-height: 64vh; object-fit: contain; border-radius: 1.1rem; display: block; background: rgba(255,255,255,.04); }
+    .split { grid-template-columns: minmax(18rem, .82fr) minmax(26rem, 1.18fr); }
+    .split.reverse { grid-template-columns: minmax(26rem, 1.18fr) minmax(18rem, .82fr); }
+    .full { grid-template-columns: 1fr; }
+    .compare { grid-template-columns: minmax(18rem, .7fr) minmax(30rem, 1.3fr); }
+
+    .slide-card, figure, .diagram-card {
+      border: 1px solid var(--line);
+      border-radius: clamp(1.1rem, 2vw, 1.8rem);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .slide-card {
+      padding: clamp(1.45rem, 3vw, 3.4rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .hero {
+      min-height: calc(100vh - clamp(2rem, 4.8vw, 4rem));
+      display: grid;
+      align-items: end;
+      padding: clamp(1.3rem, 3vw, 3rem);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: clamp(1.1rem, 2vw, 1.8rem);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(18,13,9,.88), rgba(18,13,9,.36) 54%, rgba(18,13,9,.18)); }
+    .hero > * { position: relative; max-width: 58rem; }
+    .hero .caption { max-width: max-content; margin-top: 1.2rem; }
+
+    .kicker { margin: 0 0 .8rem; color: var(--accent); font-size: clamp(.76rem, 1vw, .92rem); font-weight: 850; letter-spacing: .17em; text-transform: uppercase; }
+    h1, h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; line-height: .94; letter-spacing: -.055em; text-wrap: balance; }
+    h1 { font-size: clamp(3rem, 7.8vw, 8.8rem); }
+    h2 { font-size: clamp(2.35rem, 5.3vw, 5.8rem); }
+    .guide { max-width: 42rem; margin: 1.1rem 0 0; color: var(--muted); font-size: clamp(1.16rem, 1.8vw, 1.65rem); line-height: 1.32; }
+    .question { margin-top: 1.4rem; color: #ffe2bd; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.45rem, 2.4vw, 2.35rem); line-height: 1.08; }
+    ul { margin: clamp(1rem, 2vw, 1.7rem) 0 0; padding: 0; list-style: none; display: grid; gap: .72rem; }
+    li { position: relative; padding-left: 1.45rem; color: #f0dfc7; font-size: clamp(1.08rem, 1.8vw, 1.55rem); line-height: 1.18; }
+    li::before { content: ""; position: absolute; left: 0; top: .48em; width: .55rem; height: .55rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 .24rem rgba(211,154,98,.13); }
+
+    figure { min-height: 72vh; margin: 0; padding: .85rem; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: .72rem; background: rgba(27, 21, 17, .72); }
+    figure > img, .visual-grid img { width: 100%; height: 100%; min-height: 0; object-fit: cover; border-radius: 1.05rem; display: block; background: rgba(255,255,255,.04); }
+    figure.contain > img, .visual-grid.contain img { object-fit: contain; padding: .4rem; }
     .visual-grid { width: 100%; height: 100%; min-height: 58vh; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
-    .visual-grid.single { grid-template-columns: 1fr; }
-    figcaption { padding: .76rem .9rem; border: 1px solid var(--line); border-radius: .9rem; background: rgba(8,7,6,.68); color: var(--muted); font-size: clamp(.72rem, .92vw, .86rem); line-height: 1.34; }
-    .controls { position: fixed; left: 50%; bottom: 1rem; z-index: 10; display: flex; align-items: center; gap: .8rem; transform: translateX(-50%); padding: .65rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(16,13,9,.82); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
-    button, .back-link { border: 1px solid rgba(217,155,88,.55); border-radius: 999px; background: rgba(217,155,88,.14); color: var(--text); font: inherit; font-weight: 780; cursor: pointer; }
+    .caption, figcaption { padding: .72rem .9rem; border: 1px solid var(--line); border-radius: .9rem; background: rgba(8,7,6,.66); color: var(--muted); font-size: clamp(.76rem, .95vw, .9rem); line-height: 1.3; }
+
+    .diagram-card { min-height: 72vh; padding: clamp(1rem, 2.2vw, 2rem); display: grid; place-items: center; background: linear-gradient(145deg, rgba(61,45,32,.88), rgba(22,17,14,.9)); }
+    .flow { width: min(100%, 58rem); display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; }
+    .node { min-width: 9rem; padding: 1.2rem 1rem; border: 1px solid rgba(211,154,98,.42); border-radius: 999px; text-align: center; background: rgba(255,243,225,.07); color: #ffe8c8; font-weight: 850; font-size: clamp(1rem, 1.6vw, 1.35rem); }
+    .arrow { color: var(--accent); font-size: 2rem; }
+    .cosmos { width: min(68vh, 38rem); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(255,243,225,.12) 0 18%, transparent 19%), repeating-radial-gradient(circle, rgba(211,154,98,.34) 0 2px, transparent 3px 3.3rem); border: 1px solid rgba(211,154,98,.38); }
+    .cosmos span { padding: 1rem 1.3rem; border-radius: 999px; background: rgba(14,10,8,.86); color: #ffe2bd; font-weight: 900; letter-spacing: .08em; }
+    .tetraktys { display: grid; gap: .55rem; justify-items: center; }
+    .dots { display: flex; gap: .55rem; justify-content: center; }
+    .dot { width: 1rem; height: 1rem; border-radius: 50%; background: #e5aa70; box-shadow: 0 0 1.4rem rgba(229,170,112,.45); }
+    .monochord { width: min(100%, 32rem); height: 8rem; border: 2px solid rgba(255,226,189,.55); border-radius: .8rem; position: relative; margin-top: 2rem; }
+    .monochord::before, .monochord::after { content: ""; position: absolute; left: 8%; right: 8%; height: 2px; background: #ffe2bd; }
+    .monochord::before { top: 38%; } .monochord::after { top: 62%; }
+    .bridge { position: absolute; top: 18%; bottom: 18%; width: 3px; background: var(--accent); left: 61.8%; }
+    .fire-river { width: min(100%, 42rem); display: grid; gap: 1.4rem; text-align: center; }
+    .flame { margin: auto; width: 11rem; height: 14rem; border-radius: 58% 42% 52% 48%; background: radial-gradient(circle at 50% 72%, #ffe2bd 0 13%, #d99b58 14% 39%, #7d331e 40% 72%, transparent 73%); filter: drop-shadow(0 0 2rem rgba(211,105,55,.45)); }
+    .river { height: 6rem; border-radius: 999px; background: repeating-linear-gradient(165deg, rgba(255,243,225,.12) 0 1rem, rgba(211,154,98,.25) 1rem 2rem), linear-gradient(90deg, rgba(67,92,105,.4), rgba(211,154,98,.18)); }
+    .game { width: min(100%, 42rem); aspect-ratio: 1.25; position: relative; border: 1px solid rgba(211,154,98,.32); border-radius: 2rem; background: radial-gradient(circle, rgba(255,243,225,.08), transparent 64%); }
+    .ring { position: absolute; inset: 12%; border: 2px solid rgba(211,154,98,.42); border-radius: 50%; }
+    .piece { position: absolute; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: #d39a62; box-shadow: 0 0 1.2rem rgba(211,154,98,.35); }
+    .p1 { left: 16%; top: 28%; } .p2 { right: 22%; top: 18%; background: #8f6245; } .p3 { left: 46%; bottom: 16%; background: #f0dfc7; }
+    .timeline { position: absolute; inset: 24%; border: 1px dashed rgba(255,243,225,.32); border-radius: 50%; display: grid; place-items: center; color: #ffe2bd; font: 900 clamp(2rem, 5vw, 4.5rem) Georgia, serif; }
+    .gate { width: min(100%, 42rem); height: 28rem; position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .path { border-radius: 1.2rem; display: grid; place-items: center; font-size: clamp(1.5rem, 3vw, 2.6rem); font-family: Georgia, serif; color: #fff3e1; }
+    .truth { background: linear-gradient(180deg, rgba(255,226,189,.24), rgba(211,154,98,.1)); border: 1px solid rgba(255,226,189,.45); }
+    .doxa { background: linear-gradient(180deg, rgba(34,29,28,.72), rgba(0,0,0,.28)); border: 1px solid rgba(255,243,225,.16); color: var(--muted); }
+    .synthesis { width: min(100%, 56rem); display: grid; gap: 1rem; }
+    .band { display: grid; grid-template-columns: 9rem 1fr; align-items: center; gap: 1rem; padding: 1rem; border: 1px solid var(--line); border-radius: 1.1rem; background: rgba(255,243,225,.06); }
+    .band strong { color: #ffe2bd; font-size: 1.35rem; }
+    .band span { color: var(--muted); font-size: 1.1rem; }
+
+    .controls { position: fixed; left: 50%; bottom: 1rem; z-index: 10; display: flex; align-items: center; gap: .8rem; transform: translateX(-50%); padding: .58rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(22,16,12,.82); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+    button, .back-link { border: 1px solid rgba(211,154,98,.55); border-radius: 999px; background: rgba(211,154,98,.14); color: var(--text); font: inherit; font-weight: 780; cursor: pointer; }
     button { min-width: 2.65rem; min-height: 2.65rem; font-size: 1.25rem; }
     .counter { min-width: 5.2rem; color: var(--muted); font-weight: 850; text-align: center; letter-spacing: .08em; }
     .back-link { position: fixed; top: 1rem; left: 1rem; z-index: 11; padding: .7rem 1rem; text-decoration: none; }
-    @media (max-width: 850px) { body { overflow: auto; } .deck { min-height: auto; padding-bottom: 6rem; } .slide { position: static; display: none; grid-template-columns: 1fr; min-height: calc(100vh - 7rem); } .slide.is-active { display: grid; } figure { min-height: 44vh; } figure > img, .visual-grid { max-height: none; min-height: 38vh; } h1, h2 { max-width: 100%; } }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .deck { min-height: auto; padding-bottom: 6rem; }
+      .slide, .split, .split.reverse, .compare { position: static; display: none; grid-template-columns: 1fr; min-height: calc(100vh - 7rem); }
+      .slide.is-active { display: grid; }
+      figure, .diagram-card { min-height: 46vh; }
+      .visual-grid { min-height: 42vh; grid-template-columns: 1fr; }
+      .hero { min-height: calc(100vh - 7rem); }
+      .band { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <a class="back-link" href="../numero-fuoco-essere.html">← Articolo</a>
   <main class="deck" aria-live="polite">
-    <section class="slide is-active" data-slide="1">
-      <div class="slide-card"><p class="kicker">Lezione</p><span class="date">VII–V sec. a.C.</span><h1>Numero, fuoco, essere</h1><p class="guide">Dal sapere rituale dei Misteri alla ricerca della physis: Ionia, Pitagora, Eraclito, Parmenide.</p></div>
-      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Eleusinian%20relief%20%28NAMA%20126%29.jpg?width=900" alt="Grande Rilievo Eleusino"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia in Anatolia"></div><figcaption>Due poli della lezione: il rito di Eleusi e la Ionia anatolica, cioè la costa occidentale dell’attuale Turchia.</figcaption></figure>
+    <section class="slide full is-active" data-slide="1">
+      <div class="hero" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Great_Eleusinian_Relief.jpg?width=1600')">
+        <div><p class="kicker">Lezione visiva</p><h1>Numero, fuoco, essere</h1><p class="guide">Dal rito al logos nella Grecia arcaica</p><p class="caption">Grande Rilievo Eleusino: un’immagine rituale per aprire la domanda filosofica.</p></div>
+      </div>
     </section>
 
-    <section class="slide" data-slide="2">
-      <div class="slide-card"><p class="kicker">Misteri eleusini</p><span class="date">almeno VI sec. a.C.</span><h2>Demetra, Kore, ritorno</h2><ul><li>Kore scompare nel mondo infero</li><li>Demetra cerca la figlia</li><li>la terra si inaridisce</li><li>il ritorno riapre il ciclo della vita</li></ul></div>
-      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Eleusinian%20relief%20%28NAMA%20126%29.jpg?width=1100" alt="Grande Rilievo Eleusino"><figcaption>Grande Rilievo Eleusino, V sec. a.C.: Demetra, Persefone e Trittolemo. Il mito diventa dono del grano e forma di civiltà.</figcaption></figure>
+    <section class="slide split" data-slide="2">
+      <div class="slide-card"><p class="kicker">Domanda iniziale</p><h2>Da dove nasce il pensiero?</h2><ul><li>da un rito</li><li>da un’immagine</li><li>da una domanda sul mondo</li></ul><p class="question">Prima dei concetti: gesti, corpi, visioni.</p></div>
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great_Eleusinian_Relief.jpg?width=1200" alt="Grande Rilievo Eleusino"><figcaption>Eleusi mostra un sapere non ancora astratto: vedere, ricordare, trasformarsi.</figcaption></figure>
     </section>
 
-    <section class="slide" data-slide="3">
-      <div class="slide-card"><p class="kicker">Dioniso e Orfeo</p><span class="date">VI–V sec. a.C.</span><h2>Corpo, estasi, anima</h2><ul><li>Dioniso: maschera, ebbrezza, metamorfosi</li><li>Orfeo: canto, discesa, memoria</li><li>lamine auree: parole per l’anima</li><li>il sapere passa da rito e immagine</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Exekias%20Dionysos%20Staatliche%20Antikensammlungen%202044%20n2.jpg?width=900" alt="Coppa di Dioniso di Exekias"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orphic%20Gold%20Tablet%20%28Thessaly-The%20Getty%20Villa%2C%20Malibu%29.jpg?width=900" alt="Lamina aurea orfica"></div><figcaption>Exekias, Dioniso sulla nave, ca. 530 a.C.; lamina aurea orfica, IV–III sec. a.C. circa.</figcaption></figure>
+    <section class="slide split reverse" data-slide="3">
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Archaeological_Site_of_Eleusis_-_Telesterion_02.jpg?width=1200" alt="Resti del Telesterion di Eleusi"><figcaption>Telesterion di Eleusi: lo spazio del rito collettivo e della visione iniziatica.</figcaption></figure>
+      <div class="slide-card"><p class="kicker">Eleusi</p><h2>Entrare in un mistero</h2><ul><li>cammino</li><li>silenzio</li><li>visione</li></ul><p class="question">Che cosa si impara entrando?</p></div>
     </section>
 
-    <section class="slide" data-slide="4">
-      <div class="slide-card"><p class="kicker">Efeso</p><span class="date">dal X sec. a.C.; Artemision VI sec. a.C.</span><h2>Artemide e la città</h2><ul><li>Efeso: città ionica dell’Anatolia</li><li>Artemision: santuario monumentale</li><li>Artemide Efesina: corpo sacro e potenza generativa</li><li>paesaggio religioso di Eraclito</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://www.worldhistory.org/image/12776/artemis-of-ephesus/download/" alt="Artemide Efesina"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ruins%20of%20the%20Temple%20of%20Artemis%20at%20Ephesus%2C%20Selcuk%2C%20Turkiye%20%2853521400069%29.jpg?width=900" alt="Rovine dell’Artemision a Efeso"></div><figcaption>Artemide Efesina, copia romana da immagine cultuale; resti reali dell’Artemision presso Selçuk, Turchia.</figcaption></figure>
+    <section class="slide split" data-slide="4">
+      <div class="slide-card"><p class="kicker">Demetra e Kore</p><h2>Perdita e ritorno</h2><ul><li>la figlia scompare</li><li>la madre cerca</li><li>la vita ritorna trasformata</li></ul><p class="question">La natura diventa racconto.</p></div>
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great_Eleusinian_Relief.jpg?width=1200" alt="Demetra, Persefone e Trittolemo nel Grande Rilievo Eleusino"><figcaption>Demetra e Kore: il ciclo morte-vita diventa forma religiosa e civile.</figcaption></figure>
     </section>
 
-    <section class="slide" data-slide="5">
-      <div class="slide-card"><p class="kicker">Ionia / Mileto</p><span class="date">VI sec. a.C.</span><h2>La scuola milesia</h2><ul><li>Mileto è sulla costa ionica dell’Anatolia</li><li>non Magna Grecia: attuale Turchia occidentale</li><li>ambiente di porti, scambi, mappe, astronomia</li><li>nasce la domanda sulla physis</li></ul></div>
-      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=1100" alt="Carta dell'Ionia in Anatolia"><figcaption>Ionia: fascia costiera dell’Asia Minore. Qui si collocano Mileto, Efeso, Samo, Chio e le città della Lega ionica.</figcaption></figure>
+    <section class="slide compare" data-slide="5">
+      <div class="slide-card"><p class="kicker">Dioniso e Orfeo</p><h2>Corpo, estasi, canto</h2><ul><li>Dioniso trasforma il corpo</li><li>Orfeo attraversa la morte</li><li>la parola guida l’anima</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Exekias%20Dionysos%20Staatliche%20Antikensammlungen%202044%20n2.jpg?width=900" alt="Coppa di Dioniso di Exekias"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orphic%20Gold%20Tablet%20%28Thessaly-The%20Getty%20Villa%2C%20Malibu%29.jpg?width=900" alt="Lamina aurea orfica"></div><figcaption>Coppa di Exekias e lamina orfica: immagine, viaggio, parola salvifica.</figcaption></figure>
     </section>
 
-    <section class="slide" data-slide="6">
-      <div class="slide-card"><p class="kicker">Talete di Mileto</p><span class="date">ca. 624–546 a.C.</span><h2>Acqua</h2><ul><li>arché: principio delle cose</li><li>l’acqua come vita e fondo comune</li><li>sapienza astronomica e pratica</li><li>la natura si spiega senza genealogia divina</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Miletus%20theatre.jpg?width=900" alt="Teatro di Mileto"></div><figcaption>Talete appartiene a Mileto, città ionica dell’Asia Minore: acqua, mare, porto, scambio, osservazione del cielo.</figcaption></figure>
+    <section class="slide split reverse" data-slide="6">
+      <figure class="contain"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ancient_Ionia_map_en.svg?width=1200" alt="Mappa dell'Ionia"><figcaption>Ionia: coste, isole, porti e città in contatto tra Grecia e Anatolia.</figcaption></figure>
+      <div class="slide-card"><p class="kicker">Ionia</p><h2>Guardare la physis</h2><ul><li>coste, porti, scambi</li><li>il mondo come problema</li><li>natura come ordine</li></ul><p class="question">Non “chi lo ha generato?”, ma “di che cosa è fatto?”.</p></div>
     </section>
 
-    <section class="slide" data-slide="7">
-      <div class="slide-card"><p class="kicker">Anassimandro</p><span class="date">ca. 610–546 a.C.</span><h2>Apeiron</h2><ul><li>non acqua, non aria: l’indefinito</li><li>le cose emergono e ritornano</li><li>ordine, limite, tempo</li><li>tradizione antica: mappa del mondo</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Anaximander%20world%20map-en.svg?width=900" alt="Ricostruzione della mappa del mondo di Anassimandro"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia"></div><figcaption>Anassimandro porta la domanda sul principio verso una forma più astratta: apeiron, ordine cosmico e immagine cartografica del mondo.</figcaption></figure>
+    <section class="slide split" data-slide="7">
+      <div class="slide-card"><p class="kicker">Talete</p><h2>Acqua</h2><ul><li>principio vitale</li><li>mare, fiume, nascita</li><li>il mondo cerca un fondo</li></ul></div>
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Miletus_theatre_01.jpg?width=1200" alt="Teatro e sito archeologico di Mileto"><figcaption>Mileto: una città di mare per pensare l’acqua come fondo comune.</figcaption></figure>
     </section>
 
-    <section class="slide" data-slide="8">
-      <div class="slide-card"><p class="kicker">Anassimene</p><span class="date">ca. 586–526 a.C.</span><h2>Aria</h2><ul><li>arché: aria, respiro, invisibile</li><li>rarefazione e condensazione</li><li>fuoco, vento, nube, acqua, terra</li><li>la materia cambia forma</li></ul></div>
-      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=1100" alt="Carta dell'Ionia in Asia Minore"><figcaption>Anassimene chiude la triade milesia: la costa ionica è il luogo storico del primo pensiero della physis.</figcaption></figure>
+    <section class="slide split reverse" data-slide="8">
+      <div class="diagram-card"><div class="cosmos"><span>APEIRON</span></div></div>
+      <div class="slide-card"><p class="kicker">Anassimandro</p><h2>Apeiron</h2><ul><li>l’indefinito</li><li>ciò da cui tutto emerge</li><li>limite e ritorno</li></ul><p class="question">Un principio senza volto.</p></div>
     </section>
 
-    <section class="slide" data-slide="9">
-      <div class="slide-card"><p class="kicker">Pitagora</p><span class="date">ca. 570–495 a.C.</span><h2>Numero, musica, anima</h2><ul><li>Samo → Magna Grecia</li><li>comunità, disciplina, silenzio</li><li>tetraktys e monocordo</li><li>armonia e metempsicosi</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://www.museicapitolini.org/sites/default/files/storage/images/musei/musei_capitolini/collezioni/percorsi_per_sale/palazzo_nuovo/sala_dei_filosofi/erma_di_pitagora/10315-12-ita-IT/erma_di_pitagora.jpg" alt="Erma di Pitagora ai Musei Capitolini"><img src="../assets/visuals/tetraktys-monocordo.svg" alt="Schema tetraktys e monocordo"></div><figcaption>Ritratto della tradizione e schema essenziale: numero, proporzione musicale, anima e ordine del cosmo.</figcaption></figure>
+    <section class="slide split" data-slide="9">
+      <div class="slide-card"><p class="kicker">Anassimene</p><h2>Aria</h2><ul><li>respiro</li><li>invisibile</li><li>trasformazione della materia</li></ul><p class="question">L’invisibile prende consistenza.</p></div>
+      <div class="diagram-card"><div class="flow"><div class="node">aria</div><div class="arrow">→</div><div class="node">nube</div><div class="arrow">→</div><div class="node">acqua</div><div class="arrow">→</div><div class="node">terra</div></div></div>
     </section>
 
-    <section class="slide" data-slide="10">
-      <div class="slide-card"><p class="kicker">Eraclito di Efeso</p><span class="date">ca. 540–480 a.C.</span><h2>Fuoco e logos</h2><ul><li>il logos è comune</li><li>molti vivono come dormienti</li><li>il fiume cambia sempre</li><li>il fuoco misura il divenire</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Heraclitus_b_4_compressed.jpg/900px-Heraclitus_b_4_compressed.jpg" alt="Busto tradizionalmente identificato con Eraclito"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ruins%20of%20the%20Temple%20of%20Artemis%20at%20Ephesus%2C%20Selcuk%2C%20Turkiye%20%2853521400069%29.jpg?width=900" alt="Rovine dell'Artemision"></div><figcaption>Eraclito appartiene a Efeso: logos, fuoco, contrari, veglia e sonno nel paesaggio ionico.</figcaption></figure>
+    <section class="slide compare" data-slide="10">
+      <div class="slide-card"><p class="kicker">Pitagora</p><h2>Numero e armonia</h2><ul><li>tetraktys</li><li>monocordo</li><li>anima e misura</li></ul></div>
+      <div class="diagram-card"><div><div class="tetraktys" aria-label="Tetraktys pitagorica"><div class="dots"><span class="dot"></span></div><div class="dots"><span class="dot"></span><span class="dot"></span></div><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div><div class="monochord" aria-label="Monocordo"><span class="bridge"></span></div><p class="caption">Tetraktys e monocordo: il numero diventa proporzione visibile e sonora.</p></div></div>
     </section>
 
-    <section class="slide" data-slide="11">
-      <div class="slide-card"><p class="kicker">Parmenide di Elea</p><span class="date">ca. 515–450 a.C.</span><h2>La via dell’essere</h2><ul><li>poema filosofico</li><li>carro, fanciulle, porta, dea</li><li>via della verità</li><li>essere: compatto, stabile, necessario</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Excavation_and_Tower.jpg?width=900" alt="Area archeologica di Elea-Velia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=900" alt="Porta Rosa a Elea-Velia"></div><figcaption>Elea-Velia, Magna Grecia. La Porta Rosa funziona come immagine concreta dell’attraversamento nel poema.</figcaption></figure>
+    <section class="slide split reverse" data-slide="11">
+      <div class="diagram-card"><div class="fire-river"><div class="flame" aria-hidden="true"></div><div class="river" aria-hidden="true"></div><p class="caption">Fuoco e fiume: il mutamento ha una misura comune, il logos.</p></div></div>
+      <div class="slide-card"><p class="kicker">Eraclito</p><h2>Fuoco e logos</h2><ul><li>tutto scorre</li><li>il logos è comune</li><li>il fuoco misura il mutamento</li></ul></div>
     </section>
 
-    <section class="slide" data-slide="12">
-      <div class="slide-card"><p class="kicker">Sintesi per la classe</p><span class="date">VII–V sec. a.C.</span><h2>Tre passaggi</h2><ul><li>rito: Eleusi, Dioniso, Orfeo</li><li>physis: Talete, Anassimandro, Anassimene</li><li>forma: numero, logos, essere</li><li>la filosofia nasce dentro immagini, luoghi e pratiche</li></ul></div>
-      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=900" alt="Porta Rosa a Velia"></div><figcaption>Dalla Ionia all’Italia meridionale: il pensiero si muove tra coste, santuari, scuole, poemi e immagini.</figcaption></figure>
+    <section class="slide split" data-slide="12">
+      <div class="slide-card"><p class="kicker">Aion</p><h2>Il fanciullo che gioca</h2><ul><li>tempo</li><li>gioco</li><li>mondo</li></ul><p class="question">Se il mondo fosse una partita?</p></div>
+      <div class="diagram-card"><div class="game" aria-label="Schema del tempo come gioco"><div class="ring"></div><div class="timeline">AION</div><span class="piece p1"></span><span class="piece p2"></span><span class="piece p3"></span></div></div>
+    </section>
+
+    <section class="slide compare" data-slide="13">
+      <div class="slide-card"><p class="kicker">Parmenide</p><h2>La via dell’essere</h2><ul><li>carro</li><li>porta</li><li>dea</li></ul><p class="question">Pensare è attraversare una soglia.</p></div>
+      <figure><div class="visual-grid"><img src="https://mainzerbeobachter.com/wp-content/uploads/2018/06/parmenides_velia_jan-1.jpg" alt="Busto di Parmenide a Velia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=900" alt="Porta Rosa a Elea-Velia"></div><figcaption>Parmenide e Porta Rosa: volto del filosofo e immagine concreta della soglia.</figcaption></figure>
+    </section>
+
+    <section class="slide split reverse" data-slide="14">
+      <div class="diagram-card"><div class="gate"><div class="path truth">Verità</div><div class="path doxa">Opinione</div></div></div>
+      <div class="slide-card"><p class="kicker">Due vie</p><h2>Verità e opinione</h2><ul><li>ciò che è</li><li>ciò che appare</li><li>pensare e vedere</li></ul><p class="question">Quale via regge lo sguardo?</p></div>
+    </section>
+
+    <section class="slide split" data-slide="15">
+      <div class="slide-card"><p class="kicker">Sintesi visiva</p><h2>Tre forme del pensiero</h2><p class="guide">Una mappa per orientare la spiegazione orale.</p></div>
+      <div class="diagram-card"><div class="synthesis"><div class="band"><strong>rito</strong><span>Eleusi / Dioniso / Orfeo</span></div><div class="band"><strong>physis</strong><span>Talete / Anassimandro / Anassimene</span></div><div class="band"><strong>forma</strong><span>Pitagora / Eraclito / Parmenide</span></div></div></div>
+    </section>
+
+    <section class="slide full" data-slide="16">
+      <div class="hero" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=1600')">
+        <div><p class="kicker">Domanda finale</p><h2>Una forma può pensare?</h2><ul><li>immagine</li><li>corpo</li><li>numero</li></ul><p class="question">Che cosa vede un artista quando guarda il pensiero antico?</p><p class="caption">Porta Rosa di Elea-Velia: la filosofia come soglia tra vedere e pensare.</p></div>
+      </div>
     </section>
   </main>
-  <div class="controls" aria-label="Controlli presentazione"><button type="button" data-prev>‹</button><span class="counter">1 / 12</span><button type="button" data-next>›</button></div>
+  <div class="controls" aria-label="Controlli presentazione"><button type="button" data-prev>‹</button><span class="counter">1 / 16</span><button type="button" data-next>›</button></div>
   <script>
     const slides = Array.from(document.querySelectorAll('.slide'));
     const counter = document.querySelector('.counter');
