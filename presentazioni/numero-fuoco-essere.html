@@ -8,67 +8,122 @@
     :root {
       color-scheme: dark;
       --bg: #100d09;
-      --panel: #1c1712;
-      --panel-soft: rgba(28, 23, 18, 0.88);
-      --text: #f6efe4;
-      --muted: #c9bdae;
-      --accent: #d39a5c;
-      --accent-soft: rgba(211, 154, 92, 0.18);
-      --line: rgba(246, 239, 228, 0.16);
-      --shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+      --panel: rgba(28, 23, 18, 0.94);
+      --text: #f8efe3;
+      --muted: #d4c5b3;
+      --accent: #d99b58;
+      --line: rgba(248, 239, 227, 0.18);
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; overflow: hidden; color: var(--text); background: radial-gradient(circle at top left, rgba(211, 154, 92, 0.24), transparent 32rem), radial-gradient(circle at bottom right, rgba(74, 58, 139, 0.24), transparent 30rem), linear-gradient(135deg, #100d09 0%, #241a11 52%, #080706 100%); }
+    body { margin: 0; min-height: 100vh; overflow: hidden; color: var(--text); background: radial-gradient(circle at top left, rgba(217,155,88,.22), transparent 32rem), linear-gradient(135deg, #100d09 0%, #241a11 58%, #070604 100%); }
     a { color: inherit; }
-    .deck { position: relative; min-height: 100vh; padding: clamp(1rem, 3vw, 2.5rem); }
-    .slide { position: absolute; inset: clamp(1rem, 3vw, 2.5rem); display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr); gap: clamp(1.5rem, 4vw, 4.5rem); align-items: center; opacity: 0; transform: translateX(2.5rem) scale(0.985); pointer-events: none; transition: opacity 260ms ease, transform 260ms ease; }
+    .deck { position: relative; min-height: 100vh; padding: clamp(1rem, 2.6vw, 2rem); }
+    .slide { position: absolute; inset: clamp(1rem, 2.6vw, 2rem); display: grid; grid-template-columns: minmax(0, 0.98fr) minmax(22rem, 1.02fr); gap: clamp(1.2rem, 3vw, 3rem); align-items: stretch; opacity: 0; transform: translateX(2rem) scale(.99); pointer-events: none; transition: opacity 240ms ease, transform 240ms ease; }
     .slide.is-active { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }
-    .slide-card, figure { border: 1px solid var(--line); border-radius: 2rem; background: linear-gradient(180deg, var(--panel-soft), rgba(16, 13, 9, 0.9)); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
-    .slide-card { padding: clamp(1.6rem, 4vw, 4rem); }
-    .kicker { margin: 0 0 1rem; color: var(--accent); font-size: clamp(0.75rem, 1.2vw, 0.92rem); font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
-    h1, h2 { margin: 0; max-width: 12ch; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.35rem, 6.3vw, 6.5rem); line-height: 0.94; letter-spacing: -0.055em; }
-    h2 { font-size: clamp(2.05rem, 5.4vw, 5.2rem); }
-    .guide { max-width: 36rem; margin: 1.5rem 0 0; color: var(--muted); font-size: clamp(1.12rem, 2vw, 1.58rem); line-height: 1.36; }
-    ul { margin: clamp(1.5rem, 3vw, 2.4rem) 0 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; }
-    li { position: relative; padding-left: 1.35rem; color: #eadfce; font-size: clamp(1.08rem, 2vw, 1.65rem); line-height: 1.31; }
-    li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0.35rem var(--accent-soft); }
-    figure { position: relative; min-height: 72vh; margin: 0; overflow: hidden; display: grid; place-items: center; padding: 1rem; }
-    figure > img { width: 100%; height: 100%; max-height: 66vh; object-fit: cover; border-radius: 1.35rem; display: block; }
-    .visual-grid { width: 100%; height: 100%; min-height: 66vh; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
-    .visual-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 1.25rem; display: block; }
-    .contain { object-fit: contain; background: rgba(255, 255, 255, 0.04); }
-    figcaption { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; padding: 0.8rem 0.95rem; border: 1px solid var(--line); border-radius: 0.95rem; background: rgba(8, 7, 6, 0.82); color: var(--muted); font-size: clamp(0.72rem, 1vw, 0.88rem); line-height: 1.38; backdrop-filter: blur(10px); }
-    .controls { position: fixed; left: 50%; bottom: 1.3rem; z-index: 10; display: flex; align-items: center; gap: 0.85rem; transform: translateX(-50%); padding: 0.75rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(16, 13, 9, 0.78); box-shadow: var(--shadow); backdrop-filter: blur(14px); }
-    button, .back-link { border: 1px solid rgba(211, 154, 92, 0.55); border-radius: 999px; background: rgba(211, 154, 92, 0.14); color: var(--text); font: inherit; font-weight: 750; cursor: pointer; }
-    button { min-width: 2.75rem; min-height: 2.75rem; font-size: 1.3rem; }
-    button:hover, button:focus-visible, .back-link:hover, .back-link:focus-visible { outline: none; background: rgba(211, 154, 92, 0.25); }
-    .counter { min-width: 4.8rem; color: var(--muted); font-weight: 800; text-align: center; letter-spacing: 0.08em; }
-    .back-link { position: fixed; top: 1.2rem; left: 1.2rem; z-index: 11; padding: 0.75rem 1rem; text-decoration: none; }
-    @media (max-width: 850px) { body { overflow: auto; } .deck { min-height: auto; padding-bottom: 6rem; } .slide { position: static; display: none; grid-template-columns: 1fr; min-height: calc(100vh - 7rem); } .slide.is-active { display: grid; } figure { min-height: 42vh; } figure > img, .visual-grid { max-height: none; min-height: 42vh; } figcaption { position: static; margin-top: 1rem; } h1, h2 { max-width: 100%; } }
+    .slide-card, figure { border: 1px solid var(--line); border-radius: 1.6rem; background: var(--panel); box-shadow: var(--shadow); }
+    .slide-card { padding: clamp(1.5rem, 3.2vw, 3.2rem); display: flex; flex-direction: column; justify-content: center; }
+    .kicker { margin: 0 0 .9rem; color: var(--accent); font-size: clamp(.76rem, 1vw, .9rem); font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+    .date { display: inline-block; width: fit-content; margin: 0 0 1rem; padding: .38rem .72rem; border: 1px solid rgba(217,155,88,.55); border-radius: 999px; background: rgba(217,155,88,.15); color: #ffe2bd; font-weight: 850; letter-spacing: .03em; }
+    h1, h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.3rem, 5.4vw, 5.7rem); line-height: .96; letter-spacing: -.055em; }
+    h2 { font-size: clamp(2rem, 4.6vw, 4.7rem); }
+    .guide { max-width: 42rem; margin: 1.25rem 0 0; color: var(--muted); font-size: clamp(1.05rem, 1.65vw, 1.4rem); line-height: 1.38; }
+    ul { margin: clamp(1.1rem, 2vw, 1.7rem) 0 0; padding: 0; list-style: none; display: grid; gap: .62rem; }
+    li { position: relative; padding-left: 1.3rem; color: #eadfce; font-size: clamp(1rem, 1.65vw, 1.38rem); line-height: 1.28; }
+    li::before { content: ""; position: absolute; left: 0; top: .65em; width: .43rem; height: .43rem; border-radius: 50%; background: var(--accent); }
+    figure { min-height: 72vh; margin: 0; padding: 1rem; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: .75rem; overflow: hidden; }
+    figure > img, .visual-grid img { width: 100%; height: 100%; max-height: 64vh; object-fit: contain; border-radius: 1.1rem; display: block; background: rgba(255,255,255,.04); }
+    .visual-grid { width: 100%; height: 100%; min-height: 58vh; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    .visual-grid.single { grid-template-columns: 1fr; }
+    figcaption { padding: .76rem .9rem; border: 1px solid var(--line); border-radius: .9rem; background: rgba(8,7,6,.68); color: var(--muted); font-size: clamp(.72rem, .92vw, .86rem); line-height: 1.34; }
+    .controls { position: fixed; left: 50%; bottom: 1rem; z-index: 10; display: flex; align-items: center; gap: .8rem; transform: translateX(-50%); padding: .65rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(16,13,9,.82); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+    button, .back-link { border: 1px solid rgba(217,155,88,.55); border-radius: 999px; background: rgba(217,155,88,.14); color: var(--text); font: inherit; font-weight: 780; cursor: pointer; }
+    button { min-width: 2.65rem; min-height: 2.65rem; font-size: 1.25rem; }
+    .counter { min-width: 5.2rem; color: var(--muted); font-weight: 850; text-align: center; letter-spacing: .08em; }
+    .back-link { position: fixed; top: 1rem; left: 1rem; z-index: 11; padding: .7rem 1rem; text-decoration: none; }
+    @media (max-width: 850px) { body { overflow: auto; } .deck { min-height: auto; padding-bottom: 6rem; } .slide { position: static; display: none; grid-template-columns: 1fr; min-height: calc(100vh - 7rem); } .slide.is-active { display: grid; } figure { min-height: 44vh; } figure > img, .visual-grid { max-height: none; min-height: 38vh; } h1, h2 { max-width: 100%; } }
   </style>
 </head>
 <body>
   <a class="back-link" href="../numero-fuoco-essere.html">← Articolo</a>
   <main class="deck" aria-live="polite">
-    <section class="slide is-active" data-slide="1"><div class="slide-card"><p class="kicker">Grecia arcaica</p><h1>Numero, fuoco, essere</h1><p class="guide">Misteri, physis, armonia e logos nella Grecia arcaica.</p></div><figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Eleusinian%20relief%20%28NAMA%20126%29.jpg?width=900" alt="Grande rilievo eleusino con Demetra, Persefone e Trittolemo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Exekias%20Dionysos%20Staatliche%20Antikensammlungen%202044%20n2.jpg?width=900" alt="Coppa di Dioniso di Exekias"></div><figcaption>Demetra, Dioniso, Orfeo: terra, estasi, canto e memoria dell’anima.</figcaption></figure></section>
-    <section class="slide" data-slide="2"><div class="slide-card"><p class="kicker">Rito, canto, visione</p><h2>Il pensiero prende corpo</h2><ul><li>santuari</li><li>inni</li><li>lamine auree</li><li>memoria dell’anima</li></ul></div><figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Eleusinian%20relief%20%28NAMA%20126%29.jpg?width=900" alt="Grande rilievo eleusino"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orphic%20Gold%20Tablet%20%28Thessaly-The%20Getty%20Villa%2C%20Malibu%29.jpg?width=900" alt="Lamina aurea orfica"></div><figcaption>Eleusi e Orfismo: il rito diventa spazio, immagine e parola per l’anima.</figcaption></figure></section>
-    <section class="slide" data-slide="3"><div class="slide-card"><p class="kicker">Efeso</p><h2>Artemide e la città</h2><ul><li>corpo sacro</li><li>natura generativa</li><li>Artemision</li><li>paesaggio di Eraclito</li></ul></div><figure><div class="visual-grid"><img src="https://www.worldhistory.org/image/12776/artemis-of-ephesus/download/" alt="Artemide Efesina"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ruins%20of%20the%20Temple%20of%20Artemis%20at%20Ephesus%2C%20Selcuk%2C%20Turkiye%20%2853521400069%29.jpg?width=900" alt="Rovine dell’Artemision a Efeso"></div><figcaption>Artemide Efesina e il santuario: il sacro prende corpo nella città.</figcaption></figure></section>
-    <section class="slide" data-slide="4"><div class="slide-card"><p class="kicker">Mileto</p><h2>Acqua, apeiron, aria</h2><ul><li>Talete</li><li>Anassimandro</li><li>Anassimene</li><li>physis come venire alla luce</li></ul></div><figure><img class="contain" src="https://commons.wikimedia.org/wiki/Special:FilePath/Magna_Graecia_ancient_colonies_and_dialects-en.svg" alt="Mappa delle colonie greche della Magna Grecia"><figcaption>La mappa orienta il paesaggio greco e italiota in cui il pensiero della physis si trasmette e si trasforma.</figcaption></figure></section>
-    <section class="slide" data-slide="5"><div class="slide-card"><p class="kicker">Pitagora</p><h2>Numero, musica, anima</h2><ul><li>tetraktys</li><li>monocordo</li><li>armonia delle sfere</li><li>metempsicosi</li></ul></div><figure><div class="visual-grid"><img src="https://www.museicapitolini.org/sites/default/files/storage/images/musei/musei_capitolini/collezioni/percorsi_per_sale/palazzo_nuovo/sala_dei_filosofi/erma_di_pitagora/10315-12-ita-IT/erma_di_pitagora.jpg" alt="Erma di Pitagora ai Musei Capitolini"><img class="contain" src="../assets/visuals/tetraktys-monocordo.svg" alt="Schema della tetraktys e del monocordo"></div><figcaption>Pitagora: ritratto della tradizione, tetraktys e monocordo come immagini dell’armonia.</figcaption></figure></section>
-    <section class="slide" data-slide="6"><div class="slide-card"><p class="kicker">Eraclito</p><h2>Fuoco e logos</h2><ul><li>mondo comune</li><li>dormienti</li><li>fiume</li><li>fuoco secondo misura</li></ul></div><figure><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Heraclitus_b_4_compressed.jpg/900px-Heraclitus_b_4_compressed.jpg" alt="Busto tradizionalmente identificato con Eraclito"><figcaption>Eraclito: la parola breve e oracolare come immagine del logos comune.</figcaption></figure></section>
-    <section class="slide" data-slide="7"><div class="slide-card"><p class="kicker">Aion</p><h2>Il fanciullo che gioca</h2><ul><li>tempo</li><li>pedine</li><li>gioco cosmico</li><li>Nietzsche</li></ul></div><figure><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Heraclitus_b_4_compressed.jpg/900px-Heraclitus_b_4_compressed.jpg" alt="Busto tradizionalmente identificato con Eraclito"><figcaption>Il frammento di Aion apre la fortuna moderna di Eraclito: tempo, gioco e innocenza del divenire.</figcaption></figure></section>
-    <section class="slide" data-slide="8"><div class="slide-card"><p class="kicker">Parmenide</p><h2>La via dell’essere</h2><ul><li>carro</li><li>porta</li><li>dea</li><li>unità dietro l’apparire</li></ul></div><figure><div class="visual-grid"><img src="https://mainzerbeobachter.com/wp-content/uploads/2018/06/parmenides_velia_jan-1.jpg" alt="Busto tradizionalmente attribuito a Parmenide"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=900" alt="Porta Rosa nell’area archeologica di Elea-Velia"></div><figcaption>Parmenide e la Porta Rosa: volto della tradizione eleatica e immagine concreta dell’attraversamento.</figcaption></figure></section>
+    <section class="slide is-active" data-slide="1">
+      <div class="slide-card"><p class="kicker">Lezione</p><span class="date">VII–V sec. a.C.</span><h1>Numero, fuoco, essere</h1><p class="guide">Dal sapere rituale dei Misteri alla ricerca della physis: Ionia, Pitagora, Eraclito, Parmenide.</p></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Eleusinian%20relief%20%28NAMA%20126%29.jpg?width=900" alt="Grande Rilievo Eleusino"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia in Anatolia"></div><figcaption>Due poli della lezione: il rito di Eleusi e la Ionia anatolica, cioè la costa occidentale dell’attuale Turchia.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="2">
+      <div class="slide-card"><p class="kicker">Misteri eleusini</p><span class="date">almeno VI sec. a.C.</span><h2>Demetra, Kore, ritorno</h2><ul><li>Kore scompare nel mondo infero</li><li>Demetra cerca la figlia</li><li>la terra si inaridisce</li><li>il ritorno riapre il ciclo della vita</li></ul></div>
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Eleusinian%20relief%20%28NAMA%20126%29.jpg?width=1100" alt="Grande Rilievo Eleusino"><figcaption>Grande Rilievo Eleusino, V sec. a.C.: Demetra, Persefone e Trittolemo. Il mito diventa dono del grano e forma di civiltà.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="3">
+      <div class="slide-card"><p class="kicker">Dioniso e Orfeo</p><span class="date">VI–V sec. a.C.</span><h2>Corpo, estasi, anima</h2><ul><li>Dioniso: maschera, ebbrezza, metamorfosi</li><li>Orfeo: canto, discesa, memoria</li><li>lamine auree: parole per l’anima</li><li>il sapere passa da rito e immagine</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Exekias%20Dionysos%20Staatliche%20Antikensammlungen%202044%20n2.jpg?width=900" alt="Coppa di Dioniso di Exekias"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orphic%20Gold%20Tablet%20%28Thessaly-The%20Getty%20Villa%2C%20Malibu%29.jpg?width=900" alt="Lamina aurea orfica"></div><figcaption>Exekias, Dioniso sulla nave, ca. 530 a.C.; lamina aurea orfica, IV–III sec. a.C. circa.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="4">
+      <div class="slide-card"><p class="kicker">Efeso</p><span class="date">dal X sec. a.C.; Artemision VI sec. a.C.</span><h2>Artemide e la città</h2><ul><li>Efeso: città ionica dell’Anatolia</li><li>Artemision: santuario monumentale</li><li>Artemide Efesina: corpo sacro e potenza generativa</li><li>paesaggio religioso di Eraclito</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://www.worldhistory.org/image/12776/artemis-of-ephesus/download/" alt="Artemide Efesina"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ruins%20of%20the%20Temple%20of%20Artemis%20at%20Ephesus%2C%20Selcuk%2C%20Turkiye%20%2853521400069%29.jpg?width=900" alt="Rovine dell’Artemision a Efeso"></div><figcaption>Artemide Efesina, copia romana da immagine cultuale; resti reali dell’Artemision presso Selçuk, Turchia.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="5">
+      <div class="slide-card"><p class="kicker">Ionia / Mileto</p><span class="date">VI sec. a.C.</span><h2>La scuola milesia</h2><ul><li>Mileto è sulla costa ionica dell’Anatolia</li><li>non Magna Grecia: attuale Turchia occidentale</li><li>ambiente di porti, scambi, mappe, astronomia</li><li>nasce la domanda sulla physis</li></ul></div>
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=1100" alt="Carta dell'Ionia in Anatolia"><figcaption>Ionia: fascia costiera dell’Asia Minore. Qui si collocano Mileto, Efeso, Samo, Chio e le città della Lega ionica.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="6">
+      <div class="slide-card"><p class="kicker">Talete di Mileto</p><span class="date">ca. 624–546 a.C.</span><h2>Acqua</h2><ul><li>arché: principio delle cose</li><li>l’acqua come vita e fondo comune</li><li>sapienza astronomica e pratica</li><li>la natura si spiega senza genealogia divina</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Miletus%20theatre.jpg?width=900" alt="Teatro di Mileto"></div><figcaption>Talete appartiene a Mileto, città ionica dell’Asia Minore: acqua, mare, porto, scambio, osservazione del cielo.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="7">
+      <div class="slide-card"><p class="kicker">Anassimandro</p><span class="date">ca. 610–546 a.C.</span><h2>Apeiron</h2><ul><li>non acqua, non aria: l’indefinito</li><li>le cose emergono e ritornano</li><li>ordine, limite, tempo</li><li>tradizione antica: mappa del mondo</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Anaximander%20world%20map-en.svg?width=900" alt="Ricostruzione della mappa del mondo di Anassimandro"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia"></div><figcaption>Anassimandro porta la domanda sul principio verso una forma più astratta: apeiron, ordine cosmico e immagine cartografica del mondo.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="8">
+      <div class="slide-card"><p class="kicker">Anassimene</p><span class="date">ca. 586–526 a.C.</span><h2>Aria</h2><ul><li>arché: aria, respiro, invisibile</li><li>rarefazione e condensazione</li><li>fuoco, vento, nube, acqua, terra</li><li>la materia cambia forma</li></ul></div>
+      <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=1100" alt="Carta dell'Ionia in Asia Minore"><figcaption>Anassimene chiude la triade milesia: la costa ionica è il luogo storico del primo pensiero della physis.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="9">
+      <div class="slide-card"><p class="kicker">Pitagora</p><span class="date">ca. 570–495 a.C.</span><h2>Numero, musica, anima</h2><ul><li>Samo → Magna Grecia</li><li>comunità, disciplina, silenzio</li><li>tetraktys e monocordo</li><li>armonia e metempsicosi</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://www.museicapitolini.org/sites/default/files/storage/images/musei/musei_capitolini/collezioni/percorsi_per_sale/palazzo_nuovo/sala_dei_filosofi/erma_di_pitagora/10315-12-ita-IT/erma_di_pitagora.jpg" alt="Erma di Pitagora ai Musei Capitolini"><img src="../assets/visuals/tetraktys-monocordo.svg" alt="Schema tetraktys e monocordo"></div><figcaption>Ritratto della tradizione e schema essenziale: numero, proporzione musicale, anima e ordine del cosmo.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="10">
+      <div class="slide-card"><p class="kicker">Eraclito di Efeso</p><span class="date">ca. 540–480 a.C.</span><h2>Fuoco e logos</h2><ul><li>il logos è comune</li><li>molti vivono come dormienti</li><li>il fiume cambia sempre</li><li>il fuoco misura il divenire</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Heraclitus_b_4_compressed.jpg/900px-Heraclitus_b_4_compressed.jpg" alt="Busto tradizionalmente identificato con Eraclito"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ruins%20of%20the%20Temple%20of%20Artemis%20at%20Ephesus%2C%20Selcuk%2C%20Turkiye%20%2853521400069%29.jpg?width=900" alt="Rovine dell'Artemision"></div><figcaption>Eraclito appartiene a Efeso: logos, fuoco, contrari, veglia e sonno nel paesaggio ionico.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="11">
+      <div class="slide-card"><p class="kicker">Parmenide di Elea</p><span class="date">ca. 515–450 a.C.</span><h2>La via dell’essere</h2><ul><li>poema filosofico</li><li>carro, fanciulle, porta, dea</li><li>via della verità</li><li>essere: compatto, stabile, necessario</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Excavation_and_Tower.jpg?width=900" alt="Area archeologica di Elea-Velia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=900" alt="Porta Rosa a Elea-Velia"></div><figcaption>Elea-Velia, Magna Grecia. La Porta Rosa funziona come immagine concreta dell’attraversamento nel poema.</figcaption></figure>
+    </section>
+
+    <section class="slide" data-slide="12">
+      <div class="slide-card"><p class="kicker">Sintesi per la classe</p><span class="date">VII–V sec. a.C.</span><h2>Tre passaggi</h2><ul><li>rito: Eleusi, Dioniso, Orfeo</li><li>physis: Talete, Anassimandro, Anassimene</li><li>forma: numero, logos, essere</li><li>la filosofia nasce dentro immagini, luoghi e pratiche</li></ul></div>
+      <figure><div class="visual-grid"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ionia.svg?width=900" alt="Carta dell'Ionia"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Velia_Porta_Rosa_Interno_P1170084.JPG?width=900" alt="Porta Rosa a Velia"></div><figcaption>Dalla Ionia all’Italia meridionale: il pensiero si muove tra coste, santuari, scuole, poemi e immagini.</figcaption></figure>
+    </section>
   </main>
-  <div class="controls" aria-label="Controlli presentazione"><button type="button" data-prev>‹</button><span class="counter">1 / 8</span><button type="button" data-next>›</button></div>
+  <div class="controls" aria-label="Controlli presentazione"><button type="button" data-prev>‹</button><span class="counter">1 / 12</span><button type="button" data-next>›</button></div>
   <script>
     const slides = Array.from(document.querySelectorAll('.slide'));
     const counter = document.querySelector('.counter');
     let index = 0;
-    function showSlide(nextIndex) { index = (nextIndex + slides.length) % slides.length; slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index)); counter.textContent = `${index + 1} / ${slides.length}`; }
+    function showSlide(nextIndex) {
+      index = (nextIndex + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
+      counter.textContent = `${index + 1} / ${slides.length}`;
+    }
     document.querySelector('[data-prev]').addEventListener('click', () => showSlide(index - 1));
     document.querySelector('[data-next]').addEventListener('click', () => showSlide(index + 1));
-    document.addEventListener('keydown', event => { if (event.key === 'ArrowRight' || event.key === ' ') showSlide(index + 1); if (event.key === 'ArrowLeft') showSlide(index - 1); });
+    window.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === ' ') showSlide(index + 1);
+      if (event.key === 'ArrowLeft') showSlide(index - 1);
+    });
   </script>
 </body>
 </html>
